@@ -6,7 +6,7 @@ import "./styles.css"
 
 export default function Home() {
     return (
-        <Container maxWidth="lg">
+        <div className="header-appbar">
             {/* Header  */}
             <Header/>
             <HeroSection />
@@ -14,7 +14,7 @@ export default function Home() {
                 <Typography color="text.secondary">Footer will be under hero section.</Typography>
             </Paper>
             {/*<Footer />*/}
-        </Container>
+        </div>
     )
 }
 

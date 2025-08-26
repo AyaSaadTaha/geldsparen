@@ -1,5 +1,0 @@
-:root { --brand-radius: 16px; }
-* { box-sizing: border-box; }
-body { background:#fff; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-.logo { font-weight: 800; letter-spacing:.02em; }

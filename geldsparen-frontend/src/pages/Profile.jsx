@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { AppBar, Toolbar, Typography, Container, Box, Button } from '@mui/material'
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom'
 import Overview from './Overview'
@@ -8,6 +8,27 @@ import Dashboards from './Dashboards'
 
 
 function Profile() {
+    const [accounts, setAccounts] = useState([
+        {
+            id: "1",
+            goalName: "Reise",
+            amount: 1000,
+            spare: 300,
+            targetDate: "2025-12-31",
+            invite: "lidiia@mail.com"
+        }
+    ]);
+
+
+    function handleAdd(account) {
+        setAccounts(prev => [...prev, account]);
+    }
+
+    function handleDelete(id) {
+        setAccounts(prev => prev.filter(acc => acc.id !== id));
+    }
+
+
     return (
         <>
             <AppBar position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -29,8 +50,12 @@ function Profile() {
             {/* Routes*/}
             <Routes>
                 <Route path="/" element={<Navigate to="overview" replace />} />
-                <Route path="overview" element={<Overview />} />
-                <Route path="add-accounts" element={<AddAccounts />} />
+                <Route path="overview" element={
+                    <Overview accounts={accounts} onDelete={handleDelete} />
+                } />
+                <Route path="add-accounts" element={
+                    <AddAccounts onAdd={handleAdd}/>
+                } />
                 <Route path="actions" element={<Actions />} />
                 <Route path="dashboards" element={<Dashboards />} />
             </Routes>
