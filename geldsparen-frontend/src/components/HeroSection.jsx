@@ -1,7 +1,7 @@
 import React from 'react'
-import {Container, Box, Typography, Button, Link as MLink} from '@mui/material'
+import {Typography, Button} from '@mui/material'
 import {Link} from "react-router-dom";
-import heroImg from "../assets/hero-img.svg";
+import heroImage from "../assets/hero-img.jpg";
 
 
 function HeroSection() {
@@ -27,7 +27,7 @@ function HeroSection() {
 
                     <div className="hero-right login-btn">
                         <img
-                            src={heroImg}
+                            src={heroImage}
                             alt="Sparen leicht gemacht"
                             className="hero-image"
                             loading="eager"
