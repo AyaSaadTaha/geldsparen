@@ -1,12 +1,15 @@
 import React from 'react'
+import SavingsDiagram from "../components/SavingsDiagram.jsx";
 
 
-function Dashboards(){
+function Dashboards({accounts}){
     return (
         <div>
             <p>Your dashboards overview.</p>
-            <p>Savings dashboard.</p>
-            <p>Spending dashboard.</p>
+            <div style={{ marginTop: 16 }}>
+                <SavingsDiagram accounts={accounts} />
+            </div>
+           {/* <p>Savings dashboard.</p>*/}
         </div>
     )
 }
