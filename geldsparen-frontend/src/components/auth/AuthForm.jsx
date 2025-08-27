@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import './AuthForm.css';
+import { useNavigate } from 'react-router-dom';
+
 
 export function AuthForm({ mode, onClose, onSwitchMode }) {
     const [errors, setErrors] = useState("");
@@ -29,22 +31,16 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
         }
     };
     const validateForm = () => {
-        if (mode === "login"){
-            const newErrors = {};
+        const newErrors = {};
 
-            if (!formData.email) {
-                newErrors.email = 'email is required';
+        if (mode === "login") {
+            if (!formData.username) {
+                newErrors.username = 'Username or email is required';
             }
             if (!formData.password) {
                 newErrors.password = 'Password is required';
             }
-
-            setErrors(newErrors);
-            return Object.keys(newErrors).length === 0;
-        }
-        else if (mode === "register"){
-            const newErrors = {};
-
+        } else if (mode === "register") {
             if (!formData.username) newErrors.username = 'Username is required';
             if (!formData.email) newErrors.email = 'Email is required';
             if (!formData.password) newErrors.password = 'Password is required';
@@ -54,48 +50,40 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
             if (formData.password.length < 6) {
                 newErrors.password = 'Password must be at least 6 characters';
             }
-
-            setErrors(newErrors);
-            return Object.keys(newErrors).length === 0;
         }
 
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setErrors({});
+        if (!validateForm()) {
+            setIsLoading(false);
+            return;
+        }
         try {
             if (mode === "login") {
-                e.preventDefault();
-
-                if (!validateForm()) return;
-
-                setIsLoading(true);
-                const result = await login(formData);
-
-                setIsLoading(false);
-
+                const result = await login({
+                    username: formData.username,
+                    password: formData.password
+                });
                 if (result.success) {
                     onClose();
-                    // Redirect or show success message
+                    navigate('/profile');
                 } else {
                     setErrors({ submit: result.error });
                 }
             }
-
             else {
-                e.preventDefault();
-
-                if (!validateForm()) return;
-
-                setIsLoading(true);
                 const result = await register({
                     username: formData.username,
                     email: formData.email,
                     password: formData.password
                 });
-
-                setIsLoading(false);
-
                 if (result.success) {
                     onClose();
                     alert('Registration successful! Please login.');
@@ -105,7 +93,9 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                 }
             }
         } catch (err) {
-            setErrors({ submit: err.message });
+            setErrors({ submit: err.response?.data || 'An error occurred' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -136,27 +126,28 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                         {mode === "register" && (
                             <>
                                 <div className="form-group">
-                                    <label>Username <span>*</span></label>
+                                    <label>E-Mail <span>*</span></label>
                                     <input
-                                        type="text"
-                                        name="username"
-                                        value={formData.username}
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
                                         onChange={handleChange}
-                                        placeholder="Geben Sie Ihren vollständigen Namen ein"
+                                        placeholder="Geben Sie Ihre E-Mail-Adresse ein"
                                         required
                                     />
                                 </div>
+
                             </>
                         )}
 
                         <div className="form-group">
-                            <label>E-Mail <span>*</span></label>
+                            <label>Username <span>*</span></label>
                             <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
+                                type="text"
+                                name="username"
+                                value={formData.username}
                                 onChange={handleChange}
-                                placeholder="Geben Sie Ihre E-Mail-Adresse ein"
+                                placeholder="Geben Sie Ihren vollständigen Namen ein"
                                 required
                             />
                         </div>
@@ -192,9 +183,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                                 className="auth-submit"
                                 disabled={isLoading}
                         >
-                            {isLoading && mode === "login" ? 'Anmelden...' : 'Anmelden'}
-                            {isLoading && mode === "register" ? 'Benutzerkonto erstellen...' : 'Benutzerkonto erstellen'}
-
+                            {mode === "login" ? 'Anmelden' : 'Benutzerkonto erstellen'}
                         </button>
 
                         <div className="auth-toggle">

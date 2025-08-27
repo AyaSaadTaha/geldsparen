@@ -3,8 +3,8 @@ import { FaTimes } from "react-icons/fa";
 import {AuthForm} from "./AuthForm.jsx";
 import "./AuthForm.css";
 
-
 export function AuthModal({ mode, open, onClose, onSwitchMode }) {
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
                 scroll="body"
@@ -35,7 +35,11 @@ export function AuthModal({ mode, open, onClose, onSwitchMode }) {
                 >
                     <FaTimes />
                 </IconButton>
-                <AuthForm mode={mode} onClose={onClose} onSwitchMode={onSwitchMode} />
+                <AuthForm
+                    mode={mode}
+                    onClose={onClose}
+                    onSwitchMode={onSwitchMode}
+                />
             </DialogContent>
         </Dialog>
     );

@@ -31,7 +31,9 @@ public class UserService {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
     public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
