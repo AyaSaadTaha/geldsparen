@@ -105,7 +105,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                 }
             }
         } catch (err) {
-            setErrors(err.message);
+            setErrors({ submit: err.message });
         }
     };
 
@@ -127,7 +127,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                     {/* Error */}
                     {errors.submit && (
                         <div className="auth-error">
-                            <p>{errors}</p>
+                            <p>{errors.submit}</p>
                         </div>
                     )}
 
@@ -139,22 +139,10 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                                     <label>Username <span>*</span></label>
                                     <input
                                         type="text"
-                                        name="Username"
+                                        name="username"
                                         value={formData.username}
                                         onChange={handleChange}
                                         placeholder="Geben Sie Ihren vollständigen Namen ein"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>E-Mail <span>*</span></label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="Geben Sie Ihre E-Mail-Adresse ein"
                                         required
                                     />
                                 </div>
