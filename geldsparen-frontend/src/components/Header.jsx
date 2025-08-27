@@ -62,7 +62,6 @@ function Header() {
                     {/*<Button variant="outlined" component={Link} to="/login" className="login-btn">Log In</Button>*/}
                     {user ? (
                         <>
-                            <span className="text-gray-700">Welcome, {user.username}</span>
                             <Button variant="outlined"  onClick={handleLogout} className="login-btn">Logout</Button>
 
                         </>
@@ -81,7 +80,7 @@ function Header() {
                 open={authModalOpen}
                 onClose={() => setAuthModalOpen(false)}
                 onSwitchMode={handleSwitchAuthMode}
-             />
+            />
         </>
 
     )

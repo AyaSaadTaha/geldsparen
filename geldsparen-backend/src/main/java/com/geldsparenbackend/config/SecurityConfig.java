@@ -55,16 +55,13 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/favicon.ico",
-                                "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg",
-                                "/**/*.html", "/**/*.css", "/**/*.js"
-                        ).permitAll()
+                        // Permit all static resources
+                        .requestMatchers("/static/**", "/resources/**", "/webjars/**").permitAll()
+                        // Permit all auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/users/checkUsernameAvailability",
-                                "/api/users/checkEmailAvailability").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // مهم لـ CORS preflight
+                        // Permit OPTIONS requests for CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 );
 
@@ -72,7 +69,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     // ✅ تصحيح CORS configuration للـ Vite frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -92,4 +88,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }

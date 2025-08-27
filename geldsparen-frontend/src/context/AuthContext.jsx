@@ -48,11 +48,11 @@ export const AuthProvider = ({ children }) => {
             const userResponse = await authAPI.getCurrentUser();
             setUser(userResponse.data);
 
-            return { success: true };
+            return { success: true};
         } catch (error) {
             return {
                 success: false,
-                error: error.response?.data?.message || 'AuthForm failed'
+                error: error.response?.data?.message || 'Login failed'
             };
         }
     };

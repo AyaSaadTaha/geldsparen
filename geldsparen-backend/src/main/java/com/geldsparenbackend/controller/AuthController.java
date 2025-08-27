@@ -2,7 +2,9 @@ package com.geldsparenbackend.controller;
 
 import com.geldsparenbackend.model.User;
 import com.geldsparenbackend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,26 +54,67 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsernameOrEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsernameOrEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtTokenProvider.generateToken(authentication);
+            String jwt = jwtTokenProvider.generateToken(authentication);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", jwt);
-        response.put("tokenType", "Bearer");
+            Map<String, Object> response = new HashMap<>();
+            response.put("accessToken", jwt);
+            response.put("tokenType", "Bearer");
+            response.put("message", "Login successful");
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Login failed: " + e.getMessage());
+        }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        try {
+            // الحصول على اسم المستخدم من Authentication object
+            String username = authentication.getName();
+
+            // البحث عن المستخدم في قاعدة البيانات
+            User user = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // إرجاع بيانات المستخدم (بدون كلمة المرور)
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("email", user.getEmail());
+            response.put("createdAt", user.getCreatedAt()); // إذا كان لديك حقل createdAt
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to get user data");
+        }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyToken(HttpServletRequest request) {
+        try {
+            String token = jwtTokenProvider.resolveToken(request);
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.ok().body("Token is valid");
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token verification failed");
+        }
+    }
     public static class LoginRequest {
         private String usernameOrEmail;
         private String password;

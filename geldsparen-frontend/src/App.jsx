@@ -20,8 +20,7 @@ function App() {
                               <Home />
                       }
                   />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
+
                   {/* About for the home navbar */}
                   <Route path="/about" element={<AboutPage />} />
                   {/* Profile with pages: overview, add accounts, actions, dashboards */}
