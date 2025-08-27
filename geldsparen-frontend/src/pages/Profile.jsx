@@ -31,21 +31,27 @@ function Profile() {
 
     return (
         <>
-
-            <AppBar className="header-appbar" position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+            <AppBar className="header-appbar" position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', display:'flex', }}>
                 <Toolbar className="header-toolbar">
                     <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
                     </Typography>
+                    <div>
+                        <Box className="profile-nav" sx={{
+                            position: 'absolute',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            gap: 1,
+                            py: 1,
+                        }}>
+                            <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Overview</Button></NavLink>
+                            <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Add Accounts</Button></NavLink>
+                            <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Actions</Button></NavLink>
+                            <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
+                        </Box>
+                    </div>
                     <Typography variant="body1">Profile</Typography>
                 </Toolbar>
-                <div>
-                    <Box className="profile-nav" sx={{ display:'flex', gap: 1, py: 1 }}>
-                        <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Overview</Button></NavLink>
-                        <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Add Accounts</Button></NavLink>
-                        <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Actions</Button></NavLink>
-                        <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
-                    </Box>
-                </div>
             </AppBar>
 
             {/* Routes*/}

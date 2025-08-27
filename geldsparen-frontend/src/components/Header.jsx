@@ -44,7 +44,7 @@ function Header() {
         <>
             <AppBar
                 className="header-appbar"
-                position="sticky"
+                position="static"
                 color="transparent"
                 elevation={0}
                 sx={{
