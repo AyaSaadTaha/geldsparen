@@ -40,10 +40,10 @@ function Profile() {
                 </Toolbar>
                 <div>
                     <Box className="profile-nav" sx={{ display:'flex', gap: 1, py: 1 }}>
-                        <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button variant="text">Overview</Button></NavLink>
-                        <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button variant="text">Add Accounts</Button></NavLink>
-                        <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button variant="text">Actions</Button></NavLink>
-                        <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button variant="text">Dashboards</Button></NavLink>
+                        <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Overview</Button></NavLink>
+                        <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Add Accounts</Button></NavLink>
+                        <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Actions</Button></NavLink>
+                        <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
                     </Box>
                 </div>
             </AppBar>
