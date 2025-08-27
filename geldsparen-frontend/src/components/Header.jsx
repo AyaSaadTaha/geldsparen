@@ -8,7 +8,6 @@ function Header() {
         <AppBar className="header-appbar" position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
             <Toolbar className="header-toolbar">
                 <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
-                    Company Logo
                 </Typography>
                 <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, mr: 2 }} className="nav-right">
                     <MLink component={Link} to="/about" underline="hover" color="inherit">About</MLink>

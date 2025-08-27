@@ -1,26 +1,41 @@
 import React from 'react'
-import {Container, Box, Typography, Button, Link as MLink} from '@mui/material'
+import {Typography, Button} from '@mui/material'
 import {Link} from "react-router-dom";
+import heroImage from "../assets/hero-img.jpg";
 
 
 function HeroSection() {
     return (
-        <Container maxWidth="lg">
-            <Box className="hero">
-                <Typography variant="h3" fontWeight={800} gutterBottom>
-                    Title goes here
-                </Typography>
-                <Typography variant="h6" color="text.secondary">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt sagittis eros.
-                </Typography>
-                <Typography variant="h6" color="text.secondary">
-                    Quisque quis euismod lorem. Etiam sodales ac felis id interdum.
-                </Typography>
-                <Box className="cta-stack" sx={{ mt: 2 }}>
-                </Box>
-                <Button variant="contained" size="large" component={Link} to="/register">Register</Button>
-            </Box>
-        </Container>
+        <div className="hero-wrap">
+            <div>
+                <div className="hero-grid">
+                    <div className="hero-left">
+                        <Typography variant="h3" className="hero-title" gutterBottom>
+                            Spar Fuchs
+                        </Typography>
+                        <Typography variant="h4" className="hero-subtext">
+                            Zusammen sparen, schneller ans Ziel.
+                        </Typography>
+                        <Typography variant="h6" className="hero-subtext">
+                            Ein smarter Begleiter beim Sparen – mit cleveren Tools und intuitiven Funktionen behalten Sie Ihre Finanzen im Griff und erreichen Ihre Sparziele, Cent für Cent.
+                        </Typography>
+
+                        <div className="cta-stack">
+                            <Button variant="contained" size="large" component={Link} to="/register">Register</Button>
+                        </div>
+                    </div>
+
+                    <div className="hero-right login-btn">
+                        <img
+                            src={heroImage}
+                            alt="Sparen leicht gemacht"
+                            className="hero-image"
+                            loading="eager"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 
