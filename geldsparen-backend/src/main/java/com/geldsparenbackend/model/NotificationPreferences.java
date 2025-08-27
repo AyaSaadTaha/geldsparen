@@ -41,7 +41,10 @@ public class NotificationPreferences {
         BUDGET_ALERTS(" Budget benachrichtigungen"),
         GROUP_INVITATIONS("Gruppen einladungen"),
         EXPENSE_NOTIFICATIONS("Ausgaben benachrichtigungen"),
-        SAVING_GOAL_UPDATES("  Sparziel-Updates");
+        SAVING_GOAL_UPDATES("  Sparziel-Updates"),
+        SECURITY_ALERTS("تنبيهات الأمان"),
+        PROMOTIONAL("عروض ترويجية"),
+        NEW_FEATURES("ميزات جديدة");
 
         private final String description;
 
