@@ -1,0 +1,16 @@
+.myCustomCard {
+    width: 320px;
+    height: auto;
+    margin: 0 auto;
+    background: #1473bd;
+    border-radius: 20px;
+    padding: 24px;
+    color: white;
+}
+
+.savings-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}

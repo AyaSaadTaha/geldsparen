@@ -1,9 +1,27 @@
 /* Profile tabs navbar */
-.profile-nav { border-bottom: 1px solid rgba(0,0,0,.12); }
-.profile-nav a { text-decoration:none; padding: 12px 16px; border-radius: 10px; font-weight: 600; color: inherit; }
-.profile-nav a.active { background: rgba(30,136,229,0.1); }
+.profile-nav {
+    border-bottom: 1px solid rgba(0,0,0,.12);
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+.profile-nav a {
+    text-decoration:none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: white!important;
+}
 
+.profile-nav a.active {
+    background: rgba(30,136,229,0.1);
+    color: white!important;
+}
 
+.profile-links {
+    color: white!important;
+    font-weight: bold;
+}
 /* Header */
 .header-appbar.MuiAppBar-root {
     background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%)!important;
