@@ -6,9 +6,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 function Overview({ accounts, onDelete }){
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Typography variant="h5" fontWeight={800} gutterBottom>
+            {/*<Typography variant="h5" fontWeight={800} gutterBottom>
                 Overview
-            </Typography>
+            </Typography>*/}
 
             {accounts.length === 0 ? (
                 <Paper variant="outlined" sx={{ p: 3 }}>
