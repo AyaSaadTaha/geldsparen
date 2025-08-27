@@ -52,6 +52,25 @@
     color: white !important;
 }
 
+/*aya für model login*/
+.fixed {
+    position: fixed !important;
+    z-index: 9999 !important;
+}
+
+body.modal-open {
+    overflow: hidden !important;
+}
+
+.header-appbar {
+    z-index: 100 !important;
+    position: relative;
+}
+
+.fixed.inset-0 {
+    z-index: 9999 !important;
+}
+
 /* log in button */
 .login-btn.MuiButton-root {
     background-color: #ff5e62 !important;
