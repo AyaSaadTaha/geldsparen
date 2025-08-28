@@ -1,15 +1,16 @@
 import React from 'react'
 import './card.css'
 
-const Card = ({currentAccount}) => {
-    // защитимся, если проп ещё не пришёл
+const AccountCard = ({currentAccount}) => {
+
+    // console log: props
+    console.log("AccountCard got currentAccount:", currentAccount);
+
     const salary = Number(currentAccount?.salary ?? 0);
     const payday = currentAccount?.payday ?? "—";
     const iban = currentAccount?.iban ?? "";
     const maskedIban = iban ? "**** **** " + iban.slice(-4) : "—";
 
-    // console log: props
-    console.log("Card got currentAccount:", currentAccount);
 
     return (
         <div className="balance-card">
@@ -31,4 +32,4 @@ const Card = ({currentAccount}) => {
     );
 };
 
-export default Card;
+export default AccountCard;

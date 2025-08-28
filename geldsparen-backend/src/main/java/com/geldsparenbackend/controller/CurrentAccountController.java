@@ -6,13 +6,14 @@ import com.geldsparenbackend.service.CurrentAccountService;
 import com.geldsparenbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/current-accounts")
@@ -29,6 +30,22 @@ public class CurrentAccountController {
         public BigDecimal salary;
         public Integer payday;
         public String iban;
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> getCurrentAccount(Principal principal) {
+        User user = userService.getUserByUsername(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        CurrentAccount acc = currentAccountService.findByUser(user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Current account not found"));
+
+        Map<String, Object> body = Map.of(
+                "salary", acc.getSalary(),
+                "payday", acc.getPayday(),
+                "iban", acc.getIban()
+        );
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping

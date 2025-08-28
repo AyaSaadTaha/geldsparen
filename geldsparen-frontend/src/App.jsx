@@ -42,7 +42,7 @@ function App() {
                   {/* About for the home navbar */}
                   <Route path="/about" element={<AboutPage />} />
                   {/* Profile with pages: overview, add accounts, actions, dashboards */}
-                  <Route path="/profile/*" element={<Profile />} />
+                  <Route path="/*" element={<Profile />} />
 
 
               </Routes>
