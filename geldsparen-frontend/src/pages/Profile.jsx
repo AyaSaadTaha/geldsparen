@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {AppBar, Toolbar, Typography, Container, Box, Button, Link as MLink} from '@mui/material'
+import {AppBar, Toolbar, Typography, Container, Box, Button, Link as MLink, MenuItem, Menu} from '@mui/material'
 import {NavLink, Routes, Route, Navigate, Link} from 'react-router-dom'
 import Overview from './Overview'
 import AddAccounts from './AddAccounts'
@@ -9,9 +9,21 @@ import CurrentAccountPage from "./CurrentAccountPage.jsx";
 import SavingGoalPage from "./SavingGoalPage.jsx";
 import SpendingPatternPage from "./SpendingPatternPage.jsx";
 import MonthlyPaymentsPage from "./MonthlyPaymentsPage.jsx";
+import "../components/styles.css"
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { useNavigate } from "react-router-dom";
+
 
 
 function Profile() {
+    // for dropdown menu navbar
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const handleOpen = (e) => setAnchorEl(e.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+    const navigate = useNavigate();
+    const go = (path) => { handleClose(); navigate(path); };
+
     const [accounts, setAccounts] = useState([
         {
             id: "1",
@@ -115,13 +127,37 @@ function Profile() {
                             py: 1,
                         }}>
                             <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Overview</Button></NavLink>
-                            <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Add Accounts</Button></NavLink>
-                            <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Actions</Button></NavLink>
+                            <Button
+                                className="profile-links"
+                                variant="text"
+                                endIcon={<ArrowDropDownIcon />}
+                                onClick={handleOpen}
+                                aria-controls={open ? "add-account-menu" : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={open ? "true" : undefined}
+                            >
+                                Add Account
+                            </Button>
+                            <Menu
+                                id="add-account-menu"
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleClose}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                                transformOrigin={{ vertical: "top", horizontal: "center" }}
+                                sx={{ zIndex: (t) => t.zIndex.appBar + 1 }}
+                            >
+                                <MenuItem onClick={() => go("/current-account")}>
+                                   Current account
+                                </MenuItem>
+                                <MenuItem onClick={() => go("/saving-goals")}>
+                                    Saving account
+                                </MenuItem>
+                            </Menu>
+
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
-                            <NavLink to="current-account" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">CurrentAccountPage</Button></NavLink>
-                            <NavLink to="saving-goals" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SavingGoalPage</Button></NavLink>
-                            <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SpendingPatternPage</Button></NavLink>
-                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">MonthlyPaymentsPage</Button></NavLink>
+                            <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Spending Page</Button></NavLink>
+                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Monthly Payments</Button></NavLink>
                         </Box>
                     </div>
                     <Typography variant="body1">Profile</Typography>
