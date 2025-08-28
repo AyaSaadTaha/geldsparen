@@ -5,77 +5,82 @@ import com.geldsparenbackend.model.GroupMember;
 import com.geldsparenbackend.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/groups")
-@CrossOrigin(origins = "*")
 public class GroupController {
-    private final GroupService groupService;
 
     @Autowired
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
+    private GroupService groupService;
+
+    @GetMapping("/saving-goal/{savingGoalId}")
+    public ResponseEntity<Group> getGroupBySavingGoalId(
+            @PathVariable Long savingGoalId, Authentication authentication) {
+        String username = authentication.getName();
+        Optional<Group> group = groupService.getGroupBySavingGoalId(savingGoalId, username);
+
+        return group.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{savingGoalId}")
-    public ResponseEntity<Group> createGroup(@PathVariable Long savingGoalId,
-                                             @RequestParam String groupName,
-                                             @AuthenticationPrincipal Long userId) {
-        try {
-            Group group = groupService.createGroupForSavingGoal(savingGoalId, groupName, userId);
-            return ResponseEntity.ok(group);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    @PostMapping("/saving-goal/{savingGoalId}")
+    public ResponseEntity<Group> createGroupForSavingGoal(
+            @PathVariable Long savingGoalId,
+            @RequestParam String groupName,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Group group = groupService.createGroupForSavingGoal(savingGoalId, groupName, username);
+        return ResponseEntity.ok(group);
     }
 
-    @PostMapping("/{groupId}/invite")
-    public ResponseEntity<GroupMember> inviteToGroup(@PathVariable Long groupId,
-                                                     @RequestParam String email,
-                                                     @AuthenticationPrincipal Long userId) {
-        try {
-            GroupMember invitation = groupService.inviteUserToGroup(groupId, email, userId);
-            return ResponseEntity.ok(invitation);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @PostMapping("/{groupId}/respond")
-    public ResponseEntity<GroupMember> respondToInvitation(@PathVariable Long groupId,
-                                                           @RequestParam boolean accept,
-                                                           @AuthenticationPrincipal Long userId) {
-        try {
-            GroupMember response = groupService.respondToInvitation(groupId, userId, accept);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    @GetMapping("/{groupId}/members")
-    public List<GroupMember> getGroupMembers(@PathVariable Long groupId) {
-        return groupService.getGroupMembers(groupId);
-    }
-
-    @GetMapping("/my-groups")
-    public List<Group> getUserGroups(@AuthenticationPrincipal Long userId) {
-        return groupService.getUserGroups(userId);
+    @PostMapping("/{groupId}/members")
+    public ResponseEntity<Group> addMemberToGroup(
+            @PathVariable Long groupId,
+            @RequestParam String memberEmail,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Group group = groupService.addMemberToGroup(groupId, memberEmail, username);
+        return ResponseEntity.ok(group);
     }
 
     @DeleteMapping("/{groupId}/members/{memberId}")
-    public ResponseEntity<Void> removeMember(@PathVariable Long groupId,
-                                             @PathVariable Long memberId,
-                                             @AuthenticationPrincipal Long userId) {
-        try {
-            groupService.removeMemberFromGroup(groupId, memberId, userId);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Group> removeMemberFromGroup(
+            @PathVariable Long groupId,
+            @PathVariable Long memberId,
+            Authentication authentication) {
+        String username = authentication.getName();
+        Group group = groupService.removeMemberFromGroup(groupId, memberId, username);
+        return ResponseEntity.ok(group);
+    }
+
+    @PatchMapping("/invitations/{groupMemberId}")
+    public ResponseEntity<?> respondToGroupInvitation(
+            @PathVariable Long groupMemberId,
+            @RequestParam GroupMember.InvitationStatus response, // تم التصحيح هنا
+            Authentication authentication) {
+        String username = authentication.getName();
+        groupService.respondToGroupInvitation(groupMemberId, response, username);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{groupId}/members")
+    public ResponseEntity<List<GroupMember>> getGroupMembers(
+            @PathVariable Long groupId, Authentication authentication) {
+        String username = authentication.getName();
+        List<GroupMember> members = groupService.getGroupMembers(groupId, username);
+        return ResponseEntity.ok(members);
+    }
+
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<?> deleteGroup(
+            @PathVariable Long groupId, Authentication authentication) {
+        String username = authentication.getName();
+        groupService.deleteGroup(groupId, username);
+        return ResponseEntity.ok().build();
     }
 }

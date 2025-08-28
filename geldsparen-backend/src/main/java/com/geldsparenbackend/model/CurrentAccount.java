@@ -4,7 +4,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+
 @Entity
 @Table(name = "current_accounts")
 public class CurrentAccount {
@@ -13,29 +13,24 @@ public class CurrentAccount {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(unique = true, nullable = false)
-    private String iban;
-
-    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal salary;
 
-    @Column(nullable = false)
-    private Integer payday;
+    private Integer payday; // Day of month (1-31)
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String iban;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+    public BigDecimal getSalary() { return salary; }
+    public void setSalary(BigDecimal salary) { this.salary = salary; }
+    public Integer getPayday() { return payday; }
+    public void setPayday(Integer payday) { this.payday = payday; }
+    public String getIban() { return iban; }
+    public void setIban(String iban) { this.iban = iban; }
 }

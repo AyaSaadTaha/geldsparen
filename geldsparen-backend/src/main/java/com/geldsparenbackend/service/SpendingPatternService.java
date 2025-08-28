@@ -1,121 +1,53 @@
 package com.geldsparenbackend.service;
 
 import com.geldsparenbackend.model.SpendingPattern;
-import com.geldsparenbackend.model.SpendingPatternDetail;
+import com.geldsparenbackend.model.User;
 import com.geldsparenbackend.repository.SpendingPatternRepository;
-import com.geldsparenbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class SpendingPatternService {
-    private final SpendingPatternRepository spendingPatternRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public SpendingPatternService(SpendingPatternRepository spendingPatternRepository,
-                                  UserRepository userRepository) {
-        this.spendingPatternRepository = spendingPatternRepository;
-        this.userRepository = userRepository;
-    }
+    private SpendingPatternRepository spendingPatternRepository;
 
-    public Optional<SpendingPattern> getUserSpendingPattern(Long userId) {
-        return spendingPatternRepository.findByUserId(userId);
-    }
+    @Autowired
+    private UserService userService;
 
-    public SpendingPattern createOrUpdateSpendingPattern(Long userId, SpendingPattern pattern) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    public SpendingPattern createSpendingPattern(SpendingPattern spendingPattern, String username) {
+        User user = userService.findByUsername(username);
 
-        Optional<SpendingPattern> existingPattern = spendingPatternRepository.findByUserId(userId);
-
-        SpendingPattern spendingPattern;
-        if (existingPattern.isPresent()) {
-            spendingPattern = existingPattern.get();
-            spendingPattern.setFood(pattern.getFood());
-            spendingPattern.setClothes(pattern.getClothes());
-            spendingPattern.setMiscellaneous(pattern.getMiscellaneous());
-            spendingPattern.setSavings(pattern.getSavings());
-        } else {
-            spendingPattern = pattern;
-            spendingPattern.setUser(userRepository.findById(userId).get());
+        // Check if user already has a spending pattern
+        if (spendingPatternRepository.existsByUser(user)) {
+            throw new RuntimeException("User already has a spending pattern");
         }
 
-        // حساب النسب المئوية
-        calculatePercentages(spendingPattern);
-
+        spendingPattern.setUser(user);
         return spendingPatternRepository.save(spendingPattern);
     }
 
-    private void calculatePercentages(SpendingPattern pattern) {
-        BigDecimal totalIncome = pattern.getTotalIncome();
-        if (totalIncome == null || totalIncome.compareTo(BigDecimal.ZERO) == 0) {
-            return;
-        }
-
-        pattern.getDetails().clear();
-
-        List<SpendingCategory> categories = Arrays.asList(
-                new SpendingCategory("food", pattern.getFood()),
-                new SpendingCategory("clothes", pattern.getClothes()),
-                new SpendingCategory("miscellaneous", pattern.getMiscellaneous()),
-                new SpendingCategory("savings", pattern.getSavings())
-        );
-
-        for (SpendingCategory category : categories) {
-            if (category.amount != null && category.amount.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal percentage = category.amount
-                        .divide(totalIncome, 4, RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(100))
-                        .setScale(2, RoundingMode.HALF_UP);
-
-                SpendingPatternDetail detail = new SpendingPatternDetail();
-                detail.setSpendingPattern(pattern);
-                detail.setCategory(category.name);
-                detail.setAmount(category.amount);
-                detail.setPercentage(percentage);
-
-                pattern.getDetails().add(detail);
-            }
-        }
+    public SpendingPattern getSpendingPatternByUsername(String username) {
+        User user = userService.findByUsername(username);
+        return spendingPatternRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Spending pattern not found for user: " + username));
     }
 
-    public BigDecimal calculateRecommendedSavings(Long userId, BigDecimal goalAmount, int months) {
-        Optional<SpendingPattern> patternOpt = spendingPatternRepository.findByUserId(userId);
-        if (!patternOpt.isPresent()) {
-            throw new RuntimeException("Spending pattern not found for user: " + userId);
+    public SpendingPattern updateSpendingPattern(Long id, SpendingPattern spendingPatternDetails, String username) {
+        User user = userService.findByUsername(username);
+        SpendingPattern spendingPattern = spendingPatternRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Spending pattern not found"));
+
+        // Verify that the spending pattern belongs to the authenticated user
+        if (!spendingPattern.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not authorized to update this spending pattern");
         }
 
-        SpendingPattern pattern = patternOpt.get();
-        BigDecimal monthlySavings = goalAmount.divide(BigDecimal.valueOf(months), 2, RoundingMode.HALF_UP);
+        spendingPattern.setFood(spendingPatternDetails.getFood());
+        spendingPattern.setClothes(spendingPatternDetails.getClothes());
+        spendingPattern.setMiscellaneous(spendingPatternDetails.getMiscellaneous());
+        spendingPattern.setSavings(spendingPatternDetails.getSavings());
 
-        // التحقق إذا كان يمكن توفير المبلغ المطلوب
-        BigDecimal availableForSavings = pattern.getTotalIncome()
-                .subtract(pattern.getTotalExpenses())
-                .subtract(pattern.getSavings() != null ? pattern.getSavings() : BigDecimal.ZERO);
-
-        if (monthlySavings.compareTo(availableForSavings) > 0) {
-            // إذا لم يكن ممكناً، حساب العجز وتقديم توصيات
-            BigDecimal deficit = monthlySavings.subtract(availableForSavings);
-            throw new RuntimeException("Insufficient funds. You need to save " + deficit + " more per month.");
-        }
-
-        return monthlySavings;
-    }
-
-    private static class SpendingCategory {
-        String name;
-        BigDecimal amount;
-
-        SpendingCategory(String name, BigDecimal amount) {
-            this.name = name;
-            this.amount = amount != null ? amount : BigDecimal.ZERO;
-        }
+        return spendingPatternRepository.save(spendingPattern);
     }
 }

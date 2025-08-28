@@ -1,44 +1,38 @@
 package com.geldsparenbackend.repository;
 
 import com.geldsparenbackend.model.MonthlyPayment;
+import com.geldsparenbackend.model.SavingGoal;
+import com.geldsparenbackend.model.User;
+import com.geldsparenbackend.model.MonthlyPayment.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface MonthlyPaymentRepository extends JpaRepository<MonthlyPayment, Long> {
-    List<MonthlyPayment> findBySavingGoalId(Long savingGoalId);
+    List<MonthlyPayment> findBySavingGoal(SavingGoal savingGoal);
 
-    List<MonthlyPayment> findByUserId(Long userId);
+    // الطريقة الصحيحة للبحث بـ savingGoalId
+    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId")
+    List<MonthlyPayment> findBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
 
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.dueDate BETWEEN :startDate AND :endDate")
-    List<MonthlyPayment> findByUserIdAndDueDateRange(@Param("userId") Long userId,
-                                                     @Param("startDate") LocalDate startDate,
-                                                     @Param("endDate") LocalDate endDate);
+    List<MonthlyPayment> findByUser(User user);
+    List<MonthlyPayment> findByStatus(PaymentStatus status);
 
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.status = 'PENDING' AND mp.dueDate < :currentDate")
-    List<MonthlyPayment> findOverduePayments(@Param("currentDate") LocalDate currentDate);
+    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.dueDate <= :date AND mp.status = 'PENDING'")
+    List<MonthlyPayment> findOverduePayments(@Param("date") LocalDate date);
 
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.status = 'PENDING' AND mp.dueDate = :dueDate")
-    List<MonthlyPayment> findPaymentsDueTomorrow(@Param("dueDate") LocalDate dueDate);
+    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.dueDate BETWEEN :startDate AND :endDate")
+    List<MonthlyPayment> findPaymentsBetweenDates(@Param("startDate") LocalDate startDate,
+                                                  @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.status = 'PENDING'")
-    List<MonthlyPayment> findPendingPaymentsByUserId(@Param("userId") Long userId);
+    Long countBySavingGoalAndStatus(SavingGoal savingGoal, PaymentStatus status);
 
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.status = 'PAID'")
-    List<MonthlyPayment> findPaidPaymentsByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.status = 'OVERDUE'")
-    List<MonthlyPayment> findOverduePaymentsByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT COUNT(mp) FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.status = 'PENDING'")
-    Long countPendingPaymentsByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT SUM(mp.amount) FROM MonthlyPayment mp WHERE mp.user.id = :userId AND mp.status = 'PENDING'")
-    BigDecimal sumPendingAmountByUserId(@Param("userId") Long userId);
+    // طريقة إضافية للعد بـ savingGoalId
+    @Query("SELECT COUNT(mp) FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId AND mp.status = :status")
+    Long countBySavingGoalIdAndStatus(@Param("savingGoalId") Long savingGoalId, @Param("status") PaymentStatus status);
 }

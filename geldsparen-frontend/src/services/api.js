@@ -1,20 +1,25 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080';
 
+// إنشاء instance مخصصة لـ axios
 const api = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Add token to requests
+// interceptor لإضافة token تلقائياً إلى كل طلب
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            // إذا لم يوجد token، توجيه إلى صفحة Login
+            window.location.href = '/login';
         }
         return config;
     },
@@ -23,50 +28,27 @@ api.interceptors.request.use(
     }
 );
 
-// Handle response errors
+// interceptor للتعامل مع responses
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        return response;
+    },
     (error) => {
         if (error.response?.status === 401) {
+            // Unauthorized - حذف token وتوجيه إلى Login
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
             window.location.href = '/login';
+        } else if (error.response?.status === 403) {
+            // Forbidden - عرض رسالة خطأ
+            console.error('Access forbidden');
+        } else if (error.code === 'ECONNABORTED') {
+            console.error('Request timeout');
+        } else if (!error.response) {
+            console.error('Network error - server may be down');
         }
         return Promise.reject(error);
     }
 );
-
-
-export const authAPI = {
-    login: (credentials) => api.post('/auth/login', {
-        usernameOrEmail: credentials.username,
-        password: credentials.password
-    }),
-    register: (userData) => api.post('/auth/register', userData),
-};
-
-export const userAPI = {
-    getProfile: () => api.get('/users/profile'),
-    updateProfile: (userData) => api.put('/users/profile', userData),
-};
-
-export const currentAccountAPI = {
-    get: () => api.get('/current-account'),
-    create: (accountData) => api.post('/current-account', accountData),
-    update: (accountData) => api.put('/current-account', accountData),
-};
-
-export const savingGoalsAPI = {
-    getAll: () => api.get('/saving-goals'),
-    getById: (id) => api.get(`/saving-goals/${id}`),
-    create: (goalData) => api.post('/saving-goals', goalData),
-    update: (id, goalData) => api.put(`/saving-goals/${id}`, goalData),
-    delete: (id) => api.delete(`/saving-goals/${id}`),
-};
-
-export const notificationsAPI = {
-    getAll: () => api.get('/notifications'),
-    markAsRead: (id) => api.put(`/notifications/${id}/read`),
-    markAllAsRead: () => api.put('/notifications/read-all'),
-};
 
 export default api;

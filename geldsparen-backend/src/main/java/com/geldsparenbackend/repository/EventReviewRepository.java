@@ -1,6 +1,8 @@
 package com.geldsparenbackend.repository;
 
 import com.geldsparenbackend.model.EventReview;
+import com.geldsparenbackend.model.SavingGoal;
+import com.geldsparenbackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,13 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface EventReviewRepository extends JpaRepository<EventReview, Long> {
-    List<EventReview> findBySavingGoalId(Long savingGoalId);
+    List<EventReview> findBySavingGoal(SavingGoal savingGoal);
+    List<EventReview> findByUser(User user);
 
-    Optional<EventReview> findBySavingGoalIdAndUserId(Long savingGoalId, Long userId);
+    @Query("SELECT AVG(er.rating) FROM EventReview er WHERE er.savingGoal = :savingGoal")
+    Optional<Double> getAverageRatingBySavingGoal(@Param("savingGoal") SavingGoal savingGoal);
 
-    @Query("SELECT AVG(er.rating) FROM EventReview er WHERE er.savingGoal.id = :savingGoalId")
-    Double getAverageRatingBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
+    @Query("SELECT COUNT(er) FROM EventReview er WHERE er.savingGoal = :savingGoal AND er.rating >= :minRating")
+    Long countBySavingGoalAndMinRating(@Param("savingGoal") SavingGoal savingGoal,
+                                       @Param("minRating") Integer minRating);
 
-    @Query("SELECT COUNT(er) FROM EventReview er WHERE er.savingGoal.id = :savingGoalId")
-    Integer getReviewCountBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
+    Boolean existsBySavingGoalAndUser(SavingGoal savingGoal, User user);
 }

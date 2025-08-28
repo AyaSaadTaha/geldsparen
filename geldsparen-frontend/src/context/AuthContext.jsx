@@ -13,46 +13,57 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
+    const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const initAuth = async () => {
-            if (token) {
+            const storedToken = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
+
+            if (storedToken && storedUser) {
                 try {
-                    // هنا يجب أن يكون لديك endpoint للتحقق من الـ token
-                    const userData = await authAPI.getCurrentUser();
-                    setUser(userData.data);
+                    await authAPI.verifyToken();
+                    setToken(storedToken);
+                    setUser(JSON.parse(storedUser));
                 } catch (error) {
                     console.error('Token verification failed:', error);
                     localStorage.removeItem('token');
+                    localStorage.removeItem('user');
                     setToken(null);
+                    setUser(null);
                 }
             }
             setLoading(false);
         };
 
         initAuth();
-    }, [token]);
+    }, []);
 
     const login = async (credentials) => {
         try {
+            alert(credentials.username);
+            alert(credentials.password);
             const response = await authAPI.login(credentials);
             const { accessToken } = response.data;
+            alert(accessToken)
 
             localStorage.setItem('token', accessToken);
             setToken(accessToken);
 
-            // الحصول على بيانات المستخدم بعد AuthForm
             const userResponse = await authAPI.getCurrentUser();
             setUser(userResponse.data);
+            localStorage.setItem('user', JSON.stringify(userResponse.data));
 
-            return { success: true};
+            return { success: true };
         } catch (error) {
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data ||
+                'Login failed';
             return {
                 success: false,
-                error: error.response?.data?.message || 'Login failed'
+                error: errorMessage
             };
         }
     };
@@ -60,17 +71,25 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const response = await authAPI.register(userData);
-            return { success: true, data: response.data };
+            return {
+                success: true,
+                data: response.data,
+                message: response.data?.message || 'Registration successful'
+            };
         } catch (error) {
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data ||
+                'Registration failed';
             return {
                 success: false,
-                error: error.response?.data?.message || 'Registration failed'
+                error: errorMessage
             };
         }
     };
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setToken(null);
         setUser(null);
     };

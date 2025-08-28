@@ -149,19 +149,19 @@ function AddAccounts({ onAdd }) {
                                 <Button variant="contained"
                                         type="submit"
                                         sx={{
-                                                background: "linear-gradient(45deg, #FF8C00 0%, #FF0000 100%)",
-                                                color: "white",
-                                                fontWeight: 600,
-                                                textTransform: "none",
-                                                px: 3,
-                                                py: 1,
-                                                borderRadius: 2,
-                                                transition: "0.3s",
-                                                "&:hover": {
-                                                    background: "linear-gradient(45deg, #FF4500 0%, #CC0000 100%)",
-                                                    transform: "scale(1.03)",
-                                                    boxShadow: "0 4px 12px rgba(255, 69, 0, 0.4)",
-                                                },
+                                            background: "linear-gradient(45deg, #FF8C00 0%, #FF0000 100%)",
+                                            color: "white",
+                                            fontWeight: 600,
+                                            textTransform: "none",
+                                            px: 3,
+                                            py: 1,
+                                            borderRadius: 2,
+                                            transition: "0.3s",
+                                            "&:hover": {
+                                                background: "linear-gradient(45deg, #FF4500 0%, #CC0000 100%)",
+                                                transform: "scale(1.03)",
+                                                boxShadow: "0 4px 12px rgba(255, 69, 0, 0.4)",
+                                            },
                                         }}>
 
                                     Add Account

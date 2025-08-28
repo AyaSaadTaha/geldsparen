@@ -4,46 +4,96 @@ import com.geldsparenbackend.model.Notification;
 import com.geldsparenbackend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
-@CrossOrigin(origins = "*")
 public class NotificationController {
-    private final NotificationService notificationService;
 
     @Autowired
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
+    private NotificationService notificationService;
 
+    // الحصول على جميع إشعارات المستخدم
     @GetMapping
-    public List<Notification> getUserNotifications(@AuthenticationPrincipal Long userId) {
-        return notificationService.getUserNotifications(userId);
+    public ResponseEntity<List<Notification>> getUserNotifications(Authentication authentication) {
+        String username = authentication.getName();
+        List<Notification> notifications = notificationService.getUserNotifications(username);
+        return ResponseEntity.ok(notifications);
     }
 
+    // الحصول على الإشعارات غير المقروءة
     @GetMapping("/unread")
-    public List<Notification> getUnreadNotifications(@AuthenticationPrincipal Long userId) {
-        return notificationService.getUnreadNotifications(userId);
+    public ResponseEntity<List<Notification>> getUnreadNotifications(Authentication authentication) {
+        String username = authentication.getName();
+        List<Notification> notifications = notificationService.getUnreadNotifications(username);
+        return ResponseEntity.ok(notifications);
     }
 
+    // الحصول على عدد الإشعارات غير المقروءة
     @GetMapping("/unread-count")
-    public Integer getUnreadNotificationCount(@AuthenticationPrincipal Long userId) {
-        return notificationService.getUnreadNotificationCount(userId);
+    public ResponseEntity<Long> getUnreadCount(Authentication authentication) {
+        String username = authentication.getName();
+        Long count = notificationService.getUnreadCount(username);
+        return ResponseEntity.ok(count);
     }
 
-    @PostMapping("/mark-read/{id}")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
+    // الحصول على الإشعارات حسب النوع
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<Notification>> getNotificationsByType(
+            @PathVariable String type, Authentication authentication) {
+        String username = authentication.getName();
+        List<Notification> notifications = notificationService.getNotificationsByType(username, type);
+        return ResponseEntity.ok(notifications);
+    }
+
+    // تحديد إشعار كمقروء
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<?> markAsRead(@PathVariable Long id, Authentication authentication) {
+        String username = authentication.getName();
+        notificationService.markAsRead(id, username);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/mark-all-read")
-    public ResponseEntity<Void> markAllAsRead(@AuthenticationPrincipal Long userId) {
-        notificationService.markAllAsRead(userId);
+    // تحديد جميع الإشعارات كمقروءة
+    @PatchMapping("/read-all")
+    public ResponseEntity<?> markAllAsRead(Authentication authentication) {
+        String username = authentication.getName();
+        notificationService.markAllAsRead(username);
+        return ResponseEntity.ok().build();
+    }
+
+    // حذف إشعار
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteNotification(@PathVariable Long id, Authentication authentication) {
+        String username = authentication.getName();
+        notificationService.deleteNotification(id, username);
+        return ResponseEntity.ok().build();
+    }
+
+    // إنشاء إشعار جديد (للتطبيقات الإدارية)
+    @PostMapping
+    public ResponseEntity<Notification> createNotification(
+            @RequestBody Notification notification, Authentication authentication) {
+        String username = authentication.getName();
+
+        // في التطبيق الحقيقي، قد تريد التحقق من الصلاحيات هنا
+        // للتأكد من أن المستخدم لديه صلاحية إنشاء إشعارات
+
+        Notification createdNotification = notificationService.createNotification(notification);
+        return ResponseEntity.ok(createdNotification);
+    }
+
+    // تنظيف الإشعارات القديمة (للتطبيقات الإدارية)
+    @DeleteMapping("/clean/{daysOld}")
+    public ResponseEntity<?> cleanOldNotifications(
+            @PathVariable int daysOld, Authentication authentication) {
+        String username = authentication.getName();
+
+        // في التطبيق الحقيقي، قد تريد التحقق من أن المستخدم هو مدير
+        notificationService.cleanOldNotifications(daysOld);
         return ResponseEntity.ok().build();
     }
 }

@@ -3,19 +3,17 @@ import { useAuth } from '../../context/AuthContext';
 import './AuthForm.css';
 import { useNavigate } from 'react-router-dom';
 
-
 export function AuthForm({ mode, onClose, onSwitchMode }) {
-    const [errors, setErrors] = useState("");
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
-    const { login } = useAuth();
-    const { register } = useAuth();
-
+    const { login, register } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({
@@ -30,6 +28,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
             });
         }
     };
+
     const validateForm = () => {
         const newErrors = {};
 
@@ -55,45 +54,48 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setErrors({});
+
         if (!validateForm()) {
             setIsLoading(false);
             return;
         }
+
         try {
             if (mode === "login") {
                 const result = await login({
                     username: formData.username,
                     password: formData.password
                 });
+
                 if (result.success) {
-                    onClose();
+                    alert("ss")
+                    onClose?.();
                     navigate('/profile');
                 } else {
                     setErrors({ submit: result.error });
                 }
-            }
-            else {
+            } else {
                 const result = await register({
                     username: formData.username,
                     email: formData.email,
                     password: formData.password
                 });
+
                 if (result.success) {
-                    onClose();
-                    alert('Registration successful! Please login.');
-                    onSwitchMode();
+                    onClose?.();
+                    alert(result.message || 'Registration successful! Please login.');
+                    onSwitchMode?.();
                 } else {
                     setErrors({ submit: result.error });
                 }
             }
         } catch (err) {
-            setErrors({ submit: err.response?.data || 'An error occurred' });
+            setErrors({ submit: err.message || 'An error occurred' });
         } finally {
             setIsLoading(false);
         }
@@ -103,7 +105,6 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
         <div className="auth-page">
             <div className="auth-container">
                 <div className="auth-card">
-                    {/* Header */}
                     <div className="auth-header">
                         <h2>{mode === "login" ? "Anmelden" : "Register"}</h2>
                         <p>
@@ -114,76 +115,71 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                         </p>
                     </div>
 
-                    {/* Error */}
                     {errors.submit && (
                         <div className="auth-error">
                             <p>{errors.submit}</p>
                         </div>
                     )}
 
-                    {/* Form */}
                     <form onSubmit={handleSubmit}>
                         {mode === "register" && (
-                            <>
-                                <div className="form-group">
-                                    <label>E-Mail <span>*</span></label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="Geben Sie Ihre E-Mail-Adresse ein"
-                                        required
-                                    />
-                                </div>
-
-                            </>
+                            <div className="form-group">
+                                <label>E-Mail <span>*</span></label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="Geben Sie Ihre E-Mail-Adresse ein"
+                                    required
+                                />
+                                {errors.email && <span className="error-text">{errors.email}</span>}
+                            </div>
                         )}
 
                         <div className="form-group">
-                            <label>Username <span>*</span></label>
+                            <label>{mode === "login" ? "Username or Email" : "Username"} <span>*</span></label>
                             <input
                                 type="text"
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
-                                placeholder="Geben Sie Ihren vollständigen Namen ein"
+                                placeholder={mode === "login" ? "Enter your username or email" : "Enter your username"}
                                 required
                             />
+                            {errors.username && <span className="error-text">{errors.username}</span>}
                         </div>
 
                         <div className="form-group">
-                            <label>Passwort <span>*</span></label>
+                            <label>Password <span>*</span></label>
                             <input
                                 type="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                placeholder="Geben Sie Ihre Passwort ein"
+                                placeholder="Enter your password"
                                 required
                             />
+                            {errors.password && <span className="error-text">{errors.password}</span>}
                         </div>
 
                         {mode === "register" && (
                             <div className="form-group">
-                                <label>confirmPassword <span>*</span></label>
+                                <label>Confirm Password <span>*</span></label>
                                 <input
                                     type="password"
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    placeholder="Geben Sie Ihr Passwort ein"
+                                    placeholder="Confirm your password"
                                     required
                                 />
+                                {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
                             </div>
                         )}
 
-
-                        <button type="submit"
-                                className="auth-submit"
-                                disabled={isLoading}
-                        >
-                            {mode === "login" ? 'Anmelden' : 'Benutzerkonto erstellen'}
+                        <button type="submit" className="auth-submit" disabled={isLoading}>
+                            {isLoading ? 'Loading...' : (mode === "login" ? 'Anmelden' : 'Benutzerkonto erstellen')}
                         </button>
 
                         <div className="auth-toggle">
@@ -198,12 +194,6 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                                 {mode === "login" ? "Hier registrieren" : "Hier anmelden"}
                             </button>
                         </div>
-
-                        {mode === "login" && (
-                            <div className="auth-forgot">
-                                <button type="button">Passwort vergessen?</button>
-                            </div>
-                        )}
                     </form>
                 </div>
             </div>

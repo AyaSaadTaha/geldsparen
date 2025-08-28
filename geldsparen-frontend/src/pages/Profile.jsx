@@ -48,6 +48,10 @@ function Profile() {
                             <NavLink to="add-accounts" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Add Accounts</Button></NavLink>
                             <NavLink to="actions" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Actions</Button></NavLink>
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
+                            <NavLink to="current-account" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">CurrentAccountPage</Button></NavLink>
+                            <NavLink to="saving-goals" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SavingGoalPage</Button></NavLink>
+                            <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SpendingPatternPage</Button></NavLink>
+                            <NavLink to="/monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">MonthlyPaymentsPage</Button></NavLink>
                         </Box>
                     </div>
                     <Typography variant="body1">Profile</Typography>

@@ -1,6 +1,7 @@
 package com.geldsparenbackend.repository;
 
 import com.geldsparenbackend.model.SavingGoal;
+import com.geldsparenbackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,12 +12,14 @@ import java.util.List;
 
 @Repository
 public interface SavingGoalRepository extends JpaRepository<SavingGoal, Long> {
-    List<SavingGoal> findByUserId(Long userId);
+    List<SavingGoal> findByUser(User user);
+    List<SavingGoal> findByUserAndStatus(User user, SavingGoal.SavingGoalStatus status);
 
-    @Query("SELECT sg FROM SavingGoal sg WHERE sg.user.id = :userId AND sg.status = 'ACTIVE'")
-    List<SavingGoal> findActiveGoalsByUserId(@Param("userId") Long userId);
+    @Query("SELECT sg FROM SavingGoal sg WHERE sg.deadline <= :date AND sg.status = 'ACTIVE'")
+    List<SavingGoal> findUpcomingDeadlines(@Param("date") LocalDate date);
 
-    @Query("SELECT sg FROM SavingGoal sg WHERE sg.deadline BETWEEN :startDate AND :endDate")
-    List<SavingGoal> findGoalsByDeadlineRange(@Param("startDate") LocalDate startDate,
-                                              @Param("endDate") LocalDate endDate);
+    @Query("SELECT sg FROM SavingGoal sg WHERE sg.currentAmount >= sg.targetAmount AND sg.status = 'ACTIVE'")
+    List<SavingGoal> findCompletedGoals();
+
+    Long countByUser(User user);
 }

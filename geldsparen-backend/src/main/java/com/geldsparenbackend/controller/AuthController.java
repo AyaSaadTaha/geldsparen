@@ -83,14 +83,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         try {
-            // الحصول على اسم المستخدم من Authentication object
             String username = authentication.getName();
 
-            // البحث عن المستخدم في قاعدة البيانات
             User user = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // إرجاع بيانات المستخدم (بدون كلمة المرور)
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("username", user.getUsername());
@@ -106,7 +103,13 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken(HttpServletRequest request) {
         try {
-            String token = jwtTokenProvider.resolveToken(request);
+            String bearerToken = request.getHeader("Authorization");
+            String token = null;
+
+            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+                token = bearerToken.substring(7);
+            }
+
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok().body("Token is valid");
             }
@@ -115,6 +118,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token verification failed");
         }
     }
+
     public static class LoginRequest {
         private String usernameOrEmail;
         private String password;

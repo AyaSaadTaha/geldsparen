@@ -14,6 +14,8 @@ function Header() {
 
     const handleLogout = () => {
         logout();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
     };
 
     const handleAuthClick = (mode) => {
