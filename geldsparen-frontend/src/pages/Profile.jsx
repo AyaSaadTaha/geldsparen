@@ -12,6 +12,7 @@ import MonthlyPaymentsPage from "./MonthlyPaymentsPage.jsx";
 import "../components/styles.css"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
+import {useAuth} from "../context/AuthContext.jsx";
 
 
 
@@ -55,6 +56,7 @@ function Profile() {
         },
     ]);
 
+    const { user } = useAuth();
     const [currentAccount, setCurrentAccount] = useState(null);
 
 
@@ -160,7 +162,13 @@ function Profile() {
                             <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Monthly Payments</Button></NavLink>
                         </Box>
                     </div>
-                    <Typography variant="body1">Profile</Typography>
+                    {/* user e-mail */}
+                    <Typography variant="body1">
+                        <strong><em>{user?.email}</em></strong>
+                    </Typography>
+                    <Typography variant="body1" marginLeft={2}>
+                        Log Out
+                    </Typography>
                 </Toolbar>
             </AppBar>
 
