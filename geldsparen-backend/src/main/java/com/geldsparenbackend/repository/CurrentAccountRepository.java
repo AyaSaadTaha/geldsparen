@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface CurrentAccountRepository extends JpaRepository<CurrentAccount, Long> {
+    // Custom method to find a CurrentAccount by a User object
     Optional<CurrentAccount> findByUser(User user);
-    Optional<CurrentAccount> findByIban(String iban);
-    Boolean existsByUser(User user);
 }

@@ -44,22 +44,6 @@ function App() {
                   {/* Profile with pages: overview, add accounts, actions, dashboards */}
                   <Route path="/profile/*" element={<Profile />} />
 
-                  <Route
-                      path="/profile/current-account"
-                      element=<CurrentAccountPage />
-                  />
-                  <Route
-                      path="/saving-goals"
-                      element= <SavingGoalPage />
-                  />
-                  <Route
-                      path="/spending-patterns"
-                      element= <SpendingPatternPage />
-                  />
-                  <Route
-                      path="/monthly-payments/:goalId"
-                      element= <MonthlyPaymentsPage />
-                  />
 
               </Routes>
           </main>

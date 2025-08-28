@@ -1,190 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { useState } from 'react';
 
-const CurrentAccountPage = () => {
-    const [currentAccount, setCurrentAccount] = useState({
-        salary: '',
-        payday: 1,
-        iban: ''
-    });
+const CurrentAccountForm = () => {
+    const [salary, setSalary] = useState('');
+    const [payday, setPayday] = useState('');
+    const [iban, setIban] = useState('');
     const [message, setMessage] = useState('');
-    const [isEditing, setIsEditing] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        // التحقق من وجود token قبل جلب البيانات
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/';
-            return;
-        }
-        fetchCurrentAccount();
-    }, []);
-
-    const fetchCurrentAccount = async () => {
-        try {
-            console.log('Fetching current account...');
-            console.log('Token:', localStorage.getItem('token'));
-
-            setIsLoading(true);
-            const response = await api.get('/api/profile/current-accounts/getCurrentAccount');
-            console.log('Response:', response.data);
-            setCurrentAccount({
-                salary: response.data.salary || '',
-                payday: response.data.payday || 1,
-                iban: response.data.iban || '',
-                id: response.data.id
-            });
-        } catch (error) {
-            if (error.response?.status === 404) {
-                // لا يوجد حساب حالى، ابدأ بحالة التحرير
-                setIsEditing(true);
-            } else if (error.response?.status === 401) {
-                // Unauthorized - تم التعامل معه في interceptor
-                console.log('Redirecting to login...');
-            } else {
-                setMessage('Failed to fetch current account: ' + (error.response?.data?.message || error.message));
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage('Adding account...');
+        const token =localStorage.getItem('token');
+        alert(token)
         try {
-            let response;
+            const response = await fetch('http://localhost:8080/api/current-accounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // IMPORTANT: Include the JWT token from the user's login response
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ salary, payday, iban }),
+            });
 
-            if (currentAccount.id) {
-                response = await api.put(`/api/profile/current-accounts/${currentAccount.id}`, currentAccount);
+            if (response.ok) {
+                const data = await response.json();
+                setMessage('Account added successfully!');
+                console.log(data);
+            } else if (response.status === 409) {
+                setMessage('Error: Account already exists for this user.');
             } else {
-                response = await api.post('/api/profile/current-accounts/getCurrentAccount', currentAccount);
+                setMessage('Error adding account.');
             }
-
-            setCurrentAccount(response.data);
-            setIsEditing(false);
-            setMessage('Current account saved successfully');
-
-            // إخفاء الرسالة بعد 3 ثواني
-            setTimeout(() => setMessage(''), 3000);
         } catch (error) {
-            if (error.response?.status === 401) {
-                // Unauthorized - تم التعامل معه في interceptor
-                console.log('Redirecting to login...');
-            } else {
-                setMessage('Failed to save current account: ' + (error.response?.data?.message || error.message));
-
-                // إخفاء رسالة الخطأ بعد 5 ثواني
-                setTimeout(() => setMessage(''), 5000);
-            }
+            console.error('Network error:', error);
+            setMessage('Network error, please try again.');
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setCurrentAccount(prev => ({
-            ...prev,
-            [name]: name === 'salary' ? (value === '' ? '' : parseFloat(value) || 0) :
-                name === 'payday' ? (value === '' ? 1 : parseInt(value) || 1) : value
-        }));
-    };
-
-    const handleCancel = () => {
-        setIsEditing(false);
-        fetchCurrentAccount(); // إعادة تحميل البيانات الأصلية
-        setMessage(''); // مسح أي رسائل
-    };
-
-    if (isLoading) {
-        return (
-            <div className="current-account-page">
-                <br/><br/><br/><br/>
-                <div className="loading">Loading your account information...</div>
-            </div>
-        );
-    }
-
     return (
-        <div className="current-account-page">
-            <br/><br/><br/><br/>
-            <h2>Current Account</h2>
-
-            {message && (
-                <div className={`message ${message.includes('Failed') ? 'error' : 'success'}`}>
-                    {message}
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="current-account-form">
-                <div className="form-group">
-                    <label>Salary (€)</label>
-                    <input
-                        type="number"
-                        name="salary"
-                        value={currentAccount.salary}
-                        onChange={handleChange}
-                        required
-                        disabled={!isEditing}
-                        step="0.01"
-                        min="0"
-                        placeholder="Enter your monthly salary"
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label>Payday (Day of Month)</label>
-                    <input
-                        type="number"
-                        name="payday"
-                        value={currentAccount.payday}
-                        onChange={handleChange}
-                        required
-                        disabled={!isEditing}
-                        min="1"
-                        max="31"
-                        placeholder="e.g., 1 for the 1st of each month"
-                    />
-                </div>
-
-                {currentAccount.iban && (
-                    <div className="form-group">
-                        <label>IBAN</label>
-                        <input
-                            type="text"
-                            value={currentAccount.iban}
-                            disabled
-                            className="iban-disabled"
-                        />
-                    </div>
-                )}
-
-                <div className="form-actions">
-                    {isEditing ? (
-                        <>
-                            <button type="submit" className="btn btn-primary">
-                                Save Account
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCancel}
-                                className="btn btn-secondary"
-                            >
-                                Cancel
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={() => setIsEditing(true)}
-                            className="btn btn-primary"
-                        >
-                            Edit Account
-                        </button>
-                    )}
-                </div>
-            </form>
-        </div>
+        <form onSubmit={handleSubmit}>
+            <h2>Add Current Account</h2>
+            <div>
+                <label>Salary:</label>
+                <input type="number" value={salary} onChange={(e) => setSalary(e.target.value)} required />
+            </div>
+            <div>
+                <label>Payday (1-31):</label>
+                <input type="number" value={payday} onChange={(e) => setPayday(e.target.value)} required min="1" max="31" />
+            </div>
+            <div>
+                <label>IBAN:</label>
+                <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} required />
+            </div>
+            <button type="submit">Submit</button>
+            {message && <p>{message}</p>}
+        </form>
     );
 };
 
-export default CurrentAccountPage;
+export default CurrentAccountForm;
