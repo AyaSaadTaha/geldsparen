@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [loading, setLoading] = useState(true);
 
+
     useEffect(() => {
         const initAuth = async () => {
             const storedToken = localStorage.getItem('token');
@@ -43,21 +44,27 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            alert(credentials.username);
-            alert(credentials.password);
+            console.log("Login credentials:", credentials);
+
+            // استخدمي await مباشرة بدون .then()
             const response = await authAPI.login(credentials);
+            console.log("Login response:", response.data);
+
             const { accessToken } = response.data;
-            alert(accessToken)
 
             localStorage.setItem('token', accessToken);
             setToken(accessToken);
 
+            // الحصول على بيانات المستخدم
             const userResponse = await authAPI.getCurrentUser();
+            console.log("User response:", userResponse.data);
+
             setUser(userResponse.data);
             localStorage.setItem('user', JSON.stringify(userResponse.data));
 
             return { success: true };
         } catch (error) {
+            console.error("Login error:", error);
             const errorMessage = error.response?.data?.message ||
                 error.response?.data ||
                 'Login failed';

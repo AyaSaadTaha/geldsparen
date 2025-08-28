@@ -17,9 +17,6 @@ api.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-        } else {
-            // إذا لم يوجد token، توجيه إلى صفحة Login
-            window.location.href = '/login';
         }
         return config;
     },
@@ -38,7 +35,6 @@ api.interceptors.response.use(
             // Unauthorized - حذف token وتوجيه إلى Login
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
         } else if (error.response?.status === 403) {
             // Forbidden - عرض رسالة خطأ
             console.error('Access forbidden');

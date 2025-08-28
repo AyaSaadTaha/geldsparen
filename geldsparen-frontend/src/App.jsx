@@ -45,7 +45,7 @@ function App() {
                   <Route path="/profile/*" element={<Profile />} />
 
                   <Route
-                      path="/current-account"
+                      path="/profile/current-account"
                       element=<CurrentAccountPage />
                   />
                   <Route

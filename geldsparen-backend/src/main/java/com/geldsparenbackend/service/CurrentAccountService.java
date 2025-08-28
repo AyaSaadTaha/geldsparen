@@ -61,4 +61,5 @@ public class CurrentAccountService {
         // Simple IBAN generation for demo purposes
         return "DE89 3704 0044 0532 0130 00" + (1000 + (int)(Math.random() * 9000));
     }
+
 }

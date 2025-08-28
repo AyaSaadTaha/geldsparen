@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import './AuthForm.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation} from 'react-router-dom';
 
 export function AuthForm({ mode, onClose, onSwitchMode }) {
     const [errors, setErrors] = useState({});
@@ -67,13 +67,12 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
 
         try {
             if (mode === "login") {
+                console.log("Attempting login...");
                 const result = await login({
                     username: formData.username,
                     password: formData.password
                 });
-
                 if (result.success) {
-                    alert("ss")
                     onClose?.();
                     navigate('/profile');
                 } else {

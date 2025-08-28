@@ -2,26 +2,28 @@ package com.geldsparenbackend.controller;
 
 import com.geldsparenbackend.model.CurrentAccount;
 import com.geldsparenbackend.service.CurrentAccountService;
+import com.geldsparenbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/current-accounts")
+@RequestMapping("/api/profile/current-accounts")
 public class CurrentAccountController {
 
     @Autowired
     private CurrentAccountService currentAccountService;
+    private UserService UserService;
 
-    @PostMapping
+    @PostMapping("/createCurrentAccount")
     public ResponseEntity<CurrentAccount> createCurrentAccount(@RequestBody CurrentAccount currentAccount, Authentication authentication) {
         String username = authentication.getName();
         CurrentAccount savedAccount = currentAccountService.createCurrentAccount(currentAccount, username);
         return ResponseEntity.ok(savedAccount);
     }
 
-    @GetMapping
+    @GetMapping("/getCurrentAccount")
     public ResponseEntity<CurrentAccount> getCurrentAccount(Authentication authentication) {
         String username = authentication.getName();
         CurrentAccount account = currentAccountService.getCurrentAccountByUsername(username);

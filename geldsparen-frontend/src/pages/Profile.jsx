@@ -5,6 +5,10 @@ import Overview from './Overview'
 import AddAccounts from './AddAccounts'
 import Actions from './Actions'
 import Dashboards from './Dashboards'
+import CurrentAccountPage from "./CurrentAccountPage.jsx";
+import SavingGoalPage from "./SavingGoalPage.jsx";
+import SpendingPatternPage from "./SpendingPatternPage.jsx";
+import MonthlyPaymentsPage from "./MonthlyPaymentsPage.jsx";
 
 
 function Profile() {
@@ -71,7 +75,7 @@ function Profile() {
                             <NavLink to="current-account" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">CurrentAccountPage</Button></NavLink>
                             <NavLink to="saving-goals" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SavingGoalPage</Button></NavLink>
                             <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">SpendingPatternPage</Button></NavLink>
-                            <NavLink to="/monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">MonthlyPaymentsPage</Button></NavLink>
+                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">MonthlyPaymentsPage</Button></NavLink>
                         </Box>
                     </div>
                     <Typography variant="body1">Profile</Typography>
@@ -89,6 +93,10 @@ function Profile() {
                 } />
                 <Route path="actions" element={<Actions />} />
                 <Route path="dashboards" element={<Dashboards accounts={accounts}/>} />
+                <Route path="current-account" element={<CurrentAccountPage/>} />
+                <Route path="saving-goals" element={<SavingGoalPage/>} />
+                <Route path="spending-patterns" element={<SpendingPatternPage/>} />
+                <Route path="monthly-payments/:goalId" element={<MonthlyPaymentsPage/>} />
             </Routes>
         </>
     )

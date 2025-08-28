@@ -15,7 +15,7 @@ const CurrentAccountPage = () => {
         // التحقق من وجود token قبل جلب البيانات
         const token = localStorage.getItem('token');
         if (!token) {
-            window.location.href = '/login';
+            window.location.href = '/';
             return;
         }
         fetchCurrentAccount();
@@ -23,8 +23,12 @@ const CurrentAccountPage = () => {
 
     const fetchCurrentAccount = async () => {
         try {
+            console.log('Fetching current account...');
+            console.log('Token:', localStorage.getItem('token'));
+
             setIsLoading(true);
-            const response = await api.get('/api/current-accounts');
+            const response = await api.get('/api/profile/current-accounts/getCurrentAccount');
+            console.log('Response:', response.data);
             setCurrentAccount({
                 salary: response.data.salary || '',
                 payday: response.data.payday || 1,
@@ -52,9 +56,9 @@ const CurrentAccountPage = () => {
             let response;
 
             if (currentAccount.id) {
-                response = await api.put(`/api/current-accounts/${currentAccount.id}`, currentAccount);
+                response = await api.put(`/api/profile/current-accounts/${currentAccount.id}`, currentAccount);
             } else {
-                response = await api.post('/api/current-accounts', currentAccount);
+                response = await api.post('/api/profile/current-accounts/getCurrentAccount', currentAccount);
             }
 
             setCurrentAccount(response.data);
@@ -94,6 +98,7 @@ const CurrentAccountPage = () => {
     if (isLoading) {
         return (
             <div className="current-account-page">
+                <br/><br/><br/><br/>
                 <div className="loading">Loading your account information...</div>
             </div>
         );
@@ -101,6 +106,7 @@ const CurrentAccountPage = () => {
 
     return (
         <div className="current-account-page">
+            <br/><br/><br/><br/>
             <h2>Current Account</h2>
 
             {message && (
