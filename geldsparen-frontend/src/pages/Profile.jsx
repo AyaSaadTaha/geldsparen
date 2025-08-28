@@ -68,9 +68,9 @@ function Profile() {
         setAccounts(prev => prev.filter(acc => acc.id !== id));
     }
 
-    function handleAccountSaved(account) {
+    /*function handleAccountSaved(account) {
         setCurrentAccount(account);
-    }
+    }*/
 
     useEffect(() => {
         const fetchAccount = async () => {
