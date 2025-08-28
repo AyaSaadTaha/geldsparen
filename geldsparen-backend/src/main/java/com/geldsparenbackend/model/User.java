@@ -1,6 +1,9 @@
 package com.geldsparenbackend.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +11,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+@ToString(exclude = {"savingGoals"}) // Exclude all relationships
+
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +37,7 @@ public class User {
     private SpendingPattern spendingPattern;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<SavingGoal> savingGoals = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

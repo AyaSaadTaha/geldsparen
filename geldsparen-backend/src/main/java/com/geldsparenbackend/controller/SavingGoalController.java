@@ -23,9 +23,11 @@ public class SavingGoalController {
         return ResponseEntity.ok(savedGoal);
     }
 
+
     @GetMapping
     public ResponseEntity<List<SavingGoal>> getUserSavingGoals(Authentication authentication) {
         String username = authentication.getName();
+        System.out.println("hi: " +  username);
         List<SavingGoal> goals = savingGoalService.getUserSavingGoals(username);
         return ResponseEntity.ok(goals);
     }
@@ -50,4 +52,5 @@ public class SavingGoalController {
         savingGoalService.deleteSavingGoal(id, username);
         return ResponseEntity.ok().build();
     }
+
 }

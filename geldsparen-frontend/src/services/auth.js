@@ -10,7 +10,16 @@ export const authAPI = {
 
     getCurrentUser: () => api.get('/api/auth/me'),
 
-    createSavingGoals: (savingGoalData) => api.post('/api/saving-goals', savingGoalData),
+    verifyToken: () => api.get('/api/auth/verify'),
+    /*
 
-    verifyToken: () => api.get('/api/auth/verify')
+        createSavingGoal: (data) => api.post('/api/saving-goals/createSavingGoal', {
+            usernameOrEmail: credentials.username,
+            password: credentials.password
+        }),
+        getUserSavingGoals: (data) => api.get('/api/saving-goals/getUserSavingGoals',{
+            headers: { Authorization: `Bearer ${token}`
+        }),
+        createSavingGoalUndGroup: (data) => api.post('/api/saving-goals/createSavingGoalUndGroup'),
+    */
 };

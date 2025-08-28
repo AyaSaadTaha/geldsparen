@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/static/**", "/resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/saving-goals/**").authenticated()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/saving-goals/**").permitAll()
                         .anyRequest().authenticated()

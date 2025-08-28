@@ -19,75 +19,21 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    @Async
-    public void sendPaymentConfirmationEmail(String toEmail, String goalName, BigDecimal amount, LocalDateTime paidAt) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("تم تأكيد سداد الدفعة - Geldsparen");
-        message.setText(String.format(
-                "عزيزي المستخدم،\n\n" +
-                        "تم سداد دفعة بنجاح لهدف التوفير '%s'.\n" +
-                        "المبلغ: %.2f €\n" +
-                        "وقت السداد: %s\n\n" +
-                        "شكراً لاستخدامك تطبيق Geldsparen!\n\n" +
-                        "مع أطيب التمنيات،\nفريق Geldsparen",
-                goalName, amount, paidAt.toString()
-        ));
+    public void sendGroupInvitation(String toEmail, String groupName,
+                                    String inviterName, String savingGoalName) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("Einladung zur Gruppe: " + groupName);
+            message.setText("Hallo!\n\n" +
+                    inviterName + " hat Sie zur Gruppe '" + groupName +
+                    "' für das Sparziel '" + savingGoalName + "' eingeladen.\n\n" +
+                    "Bitte loggen Sie sich ein, um die Einladung anzunehmen oder abzulehnen.");
 
-        mailSender.send(message);
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send email to: " + toEmail + ", error: " + e.getMessage());
+        }
     }
 
-    @Async
-    public void sendPaymentReminderEmail(String toEmail, String goalName, BigDecimal amount, LocalDate dueDate) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("تذكير بالدفعة المستحقة - Geldsparen");
-        message.setText(String.format(
-                "عزيزي المستخدم،\n\n" +
-                        "هذا تذكير بدفعة مستحقة غداً:\n" +
-                        "الهدف: %s\n" +
-                        "المبلغ: %.2f €\n" +
-                        "تاريخ الاستحقاق: %s\n\n" +
-                        "يرجى确保 السداد في الوقت المحدد.\n\n" +
-                        "مع أطيب التمنيات،\nفريق Geldsparen",
-                goalName, amount, dueDate.toString()
-        ));
-
-        mailSender.send(message);
-    }
-
-    @Async
-    public void sendOverduePaymentEmail(String toEmail, String goalName, BigDecimal amount, LocalDate dueDate) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("تنبيه: دفعة متأخرة - Geldsparen");
-        message.setText(String.format(
-                "عزيزي المستخدم،\n\n" +
-                        "لديك دفعة متأخرة تحتاج إلى السداد:\n" +
-                        "الهدف: %s\n" +
-                        "المبلغ: %.2f €\n" +
-                        "تاريخ الاستحقاق: %s\n\n" +
-                        "يرجى السداد في أقرب وقت ممكن.\n\n" +
-                        "مع أطيب التمنيات،\nفريق Geldsparen",
-                goalName, amount, dueDate.toString()
-        ));
-
-        mailSender.send(message);
-    }
-
-    @Async
-    public void sendGroupInvitationEmail(String toEmail, String inviterName, String groupName) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("دعوة للانضمام إلى مجموعة - Geldsparen");
-        message.setText(String.format(
-                "عزيزي المستخدم،\n\n" +
-                        "تمت دعوتك للانضمام إلى مجموعة '%s' بواسطة %s.\n\n" +
-                        "يرجى تسجيل الدخول إلى تطبيق Geldsparen للرد على الدعوة.\n\n" +
-                        "مع أطيب التمنيات،\nفريق Geldsparen",
-                groupName, inviterName
-        ));
-
-        mailSender.send(message);
-    }
 }

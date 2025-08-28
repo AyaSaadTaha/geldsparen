@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const SavingGoalPage = () => {
+    // Initialize savingGoals with an empty array to prevent the TypeError
     const [savingGoals, setSavingGoals] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [isGroup, setIsGroup] = useState(false);
@@ -28,13 +29,22 @@ const SavingGoalPage = () => {
     const fetchSavingGoals = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('/api/saving-goals', {
+            const response = await axios.get('http://localhost:8080/api/saving-goals', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setSavingGoals(response.data);
+            // Add a check to ensure the response data is an array before setting the state
+            if (Array.isArray(response.data)) {
+                setSavingGoals(response.data);
+                alert(response.data);
+            } else {
+                // If the response is not an array, log the error and set to an empty array
+                console.error("API response for saving goals is not an array:", response.data);
+                setSavingGoals([]);
+            }
         } catch (error) {
             console.error(error);
             setMessage('Failed to fetch saving goals');
+            setSavingGoals([]); // Set to empty array on error to prevent breaking the UI
         }
     };
 
@@ -42,64 +52,69 @@ const SavingGoalPage = () => {
         const { name, value } = e.target;
         setSavingGoal(prev => ({
             ...prev,
-            [name]: name === 'targetAmount' ? parseFloat(value) || 0 : value
+            [name]: value,
         }));
     };
 
-    const handleGroupDataChange = (e) => {
-        const { name, value } = e.target;
-        setGroupData(prev => ({ ...prev, [name]: value }));
+    const handleMemberEmailChange = (index, e) => {
+        const newMemberEmails = [...groupData.memberEmails];
+        newMemberEmails[index] = e.target.value;
+        setGroupData(prev => ({ ...prev, memberEmails: newMemberEmails }));
     };
 
-    const handleMemberEmailChange = (index, value) => {
-        const newEmails = [...groupData.memberEmails];
-        newEmails[index] = value;
-        setGroupData(prev => ({ ...prev, memberEmails: newEmails }));
+    const addMemberEmail = () => {
+        setGroupData(prev => ({ ...prev, memberEmails: [...prev.memberEmails, ''] }));
     };
 
-    const addEmailField = () => {
-        setGroupData(prev => ({
-            ...prev,
-            memberEmails: [...prev.memberEmails, '']
-        }));
+    const removeMemberEmail = (index) => {
+        const newMemberEmails = groupData.memberEmails.filter((_, i) => i !== index);
+        setGroupData(prev => ({ ...prev, memberEmails: newMemberEmails }));
     };
 
-    const removeEmailField = (index) => {
-        const newEmails = [...groupData.memberEmails];
-        newEmails.splice(index, 1);
-        setGroupData(prev => ({ ...prev, memberEmails: newEmails }));
-    };
-
-    const handleSubmit = async (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
+        setMessage('');
+
         try {
             const token = localStorage.getItem('token');
-
+            let response;
             if (isGroup) {
-                const request = {
+                // Create a request body for group saving goal
+                const groupRequestBody = {
                     savingGoal: savingGoal,
                     memberEmails: groupData.memberEmails.filter(email => email.trim() !== ''),
                     groupName: groupData.groupName
                 };
 
-                await axios.post('/api/saving-goals/group', request, {
+                // Use the correct endpoint for creating a group saving goal
+                response = await axios.post('http://localhost:8080/api/groups/saving-goals/group', groupRequestBody, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
-                await axios.post('/api/saving-goals', savingGoal, {
+                // Endpoint for creating a personal saving goal
+                response = await axios.post('http://localhost:8080/api/saving-goals', savingGoal, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+               alert(response)
             }
 
-            setShowForm(false);
-            setSavingGoal({ name: '', targetAmount: '', deadline: '', type: 'OTHER' });
-            setGroupData({ groupName: '', memberEmails: [''] });
-            setIsGroup(false);
-            fetchSavingGoals();
-            setMessage('Saving goal created successfully');
+            if (response.status === 200 || response.status === 201) {
+                setMessage('Saving goal created successfully!');
+                setShowForm(false);
+                fetchSavingGoals(); // Refresh the list of goals
+                // Reset form fields
+                setSavingGoal({ name: '', targetAmount: '', deadline: '', type: 'OTHER' });
+                setGroupData({ groupName: '', memberEmails: [''] });
+                setIsGroup(false);
+            }
         } catch (error) {
+            if (error.response) {
+                // This will give a more specific error message from the backend
+                setMessage(`Error: ${error.response.data.message || error.response.statusText}`);
+            } else {
+                setMessage('An unexpected error occurred. Please try again.');
+            }
             console.error(error);
-            setMessage('Failed to create saving goal');
         }
     };
 
@@ -108,25 +123,41 @@ const SavingGoalPage = () => {
     };
 
     return (
-        <div className="saving-goal-page">
-            <div className="page-header">
-                <h2>Saving Goals</h2>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowForm(true)}
-                >
-                    Add New Saving Goal
-                </button>
-            </div>
+        <div className="saving-goals-container">
+            <h1>My Saving Goals</h1>
+            <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+                Create New Goal
+            </button>
 
-            {message && <div className="message">{message}</div>}
+            {message && <div className="message-box">{message}</div>}
 
             {showForm && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h3>{isGroup ? 'Create Group Saving Goal' : 'Create Personal Saving Goal'}</h3>
-
-                        <form onSubmit={handleSubmit}>
+                <div className="modal">
+                    <div className="modal-content">
+                        <h2>Create New Saving Goal</h2>
+                        <form onSubmit={handleFormSubmit}>
+                            <div className="form-group">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={isGroup}
+                                        onChange={(e) => setIsGroup(e.target.checked)}
+                                    />
+                                    Group Goal
+                                </label>
+                            </div>
+                            {isGroup && (
+                                <div className="form-group">
+                                    <label>Group Name</label>
+                                    <input
+                                        type="text"
+                                        name="groupName"
+                                        value={groupData.groupName}
+                                        onChange={(e) => setGroupData(prev => ({ ...prev, groupName: e.target.value }))}
+                                        required
+                                    />
+                                </div>
+                            )}
                             <div className="form-group">
                                 <label>Goal Name</label>
                                 <input
@@ -137,7 +168,6 @@ const SavingGoalPage = () => {
                                     required
                                 />
                             </div>
-
                             <div className="form-group">
                                 <label>Target Amount (€)</label>
                                 <input
@@ -146,10 +176,8 @@ const SavingGoalPage = () => {
                                     value={savingGoal.targetAmount}
                                     onChange={handleSavingGoalChange}
                                     required
-                                    step="0.01"
                                 />
                             </div>
-
                             <div className="form-group">
                                 <label>Deadline</label>
                                 <input
@@ -160,89 +188,55 @@ const SavingGoalPage = () => {
                                     required
                                 />
                             </div>
-
                             <div className="form-group">
-                                <label>Goal Type</label>
-                                <select
-                                    name="type"
-                                    value={savingGoal.type}
-                                    onChange={handleSavingGoalChange}
-                                    required
-                                >
+                                <label>Type</label>
+                                <select name="type" value={savingGoal.type} onChange={handleSavingGoalChange}>
                                     <option value="TRIP">Trip</option>
                                     <option value="BIRTHDAY">Birthday</option>
                                     <option value="WEDDING">Wedding</option>
                                     <option value="OTHER">Other</option>
                                 </select>
                             </div>
-
-                            <div className="form-group">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={isGroup}
-                                        onChange={(e) => setIsGroup(e.target.checked)}
-                                    />
-                                    Group Saving Goal
-                                </label>
-                            </div>
-
                             {isGroup && (
-                                <>
-                                    <div className="form-group">
-                                        <label>Group Name</label>
-                                        <input
-                                            type="text"
-                                            name="groupName"
-                                            value={groupData.groupName}
-                                            onChange={handleGroupDataChange}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Member Emails</label>
-                                        {groupData.memberEmails.map((email, index) => (
-                                            <div key={index} className="email-input-group">
-                                                <input
-                                                    type="email"
-                                                    value={email}
-                                                    onChange={(e) => handleMemberEmailChange(index, e.target.value)}
-                                                    placeholder="Enter member email"
-                                                />
-                                                {groupData.memberEmails.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeEmailField(index)}
-                                                        className="btn btn-danger"
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-                                        <button
-                                            type="button"
-                                            onClick={addEmailField}
-                                            className="btn btn-secondary"
-                                        >
-                                            Add Another Email
-                                        </button>
-                                    </div>
-                                </>
+                                <div className="form-group member-emails-container">
+                                    <label>Member Emails</label>
+                                    {groupData.memberEmails.map((email, index) => (
+                                        <div key={index} className="member-email-input">
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => handleMemberEmailChange(index, e)}
+                                                placeholder="Enter member email"
+                                                required
+                                            />
+                                            {groupData.memberEmails.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="btn-remove"
+                                                    onClick={() => removeMemberEmail(index)}
+                                                >
+                                                    -
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="btn-add"
+                                        onClick={addMemberEmail}
+                                    >
+                                        + Add Another Member
+                                    </button>
+                                </div>
                             )}
-
                             <div className="form-actions">
-                                <button type="submit" className="btn btn-primary">Create</button>
+                                <button type="submit" className="btn btn-success">
+                                    Create Goal
+                                </button>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setShowForm(false);
-                                        setIsGroup(false);
-                                        setSavingGoal({ name: '', targetAmount: '', deadline: '', type: 'OTHER' });
-                                        setGroupData({ groupName: '', memberEmails: [''] });
-                                    }}
                                     className="btn btn-secondary"
+                                    onClick={() => setShowForm(false)}
                                 >
                                     Cancel
                                 </button>

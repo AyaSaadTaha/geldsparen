@@ -1,7 +1,10 @@
 package com.geldsparenbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import jakarta.persistence.*;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -9,6 +12,7 @@ import java.time.temporal.ChronoUnit;
 @Data
 @Entity
 @Table(name = "saving_goals")
+@ToString(exclude = "user") // Exclude the user relationship
 public class SavingGoal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +20,7 @@ public class SavingGoal {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     private String name;

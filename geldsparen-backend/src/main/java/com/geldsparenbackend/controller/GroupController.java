@@ -2,6 +2,7 @@ package com.geldsparenbackend.controller;
 
 import com.geldsparenbackend.model.Group;
 import com.geldsparenbackend.model.GroupMember;
+import com.geldsparenbackend.service.GroupSavingGoalRequest;
 import com.geldsparenbackend.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,16 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
+    @PostMapping("/saving-goals/group")
+    public ResponseEntity<Group> createGroupSavingGoal(
+            @RequestBody GroupSavingGoalRequest request,
+            Authentication authentication) {
+
+        String username = authentication.getName();
+        Group group = groupService.createGroupSavingGoal(request, username);
+
+        return ResponseEntity.ok(group);
+    }
     @GetMapping("/saving-goal/{savingGoalId}")
     public ResponseEntity<Group> getGroupBySavingGoalId(
             @PathVariable Long savingGoalId, Authentication authentication) {
@@ -26,16 +37,6 @@ public class GroupController {
 
         return group.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/saving-goal/{savingGoalId}")
-    public ResponseEntity<Group> createGroupForSavingGoal(
-            @PathVariable Long savingGoalId,
-            @RequestParam String groupName,
-            Authentication authentication) {
-        String username = authentication.getName();
-        Group group = groupService.createGroupForSavingGoal(savingGoalId, groupName, username);
-        return ResponseEntity.ok(group);
     }
 
     @PostMapping("/{groupId}/members")

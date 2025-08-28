@@ -10,9 +10,11 @@ import com.geldsparenbackend.repository.GroupMemberRepository;
 import com.geldsparenbackend.repository.SavingGoalRepository;
 import com.geldsparenbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +37,66 @@ public class GroupService {
     private UserService userService;
 
     @Autowired
+    private SavingGoalService savingGoalService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private NotificationService notificationService;
+
+    @Transactional
+    public Group createGroupSavingGoal(GroupSavingGoalRequest request, String username) {
+        // 1. Saving Goal erstellen
+        SavingGoal savingGoal = savingGoalService.createSavingGoal(request.getSavingGoal(), username);
+
+        // 2. Gruppe erstellen
+        User createdBy = userService.getUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Group group = new Group();
+        group.setName(request.getGroupName());
+        group.setSavingGoal(savingGoal);
+        group.setCreatedBy(createdBy);
+        group.setMembers(new ArrayList<>());
+
+        Group savedGroup = groupRepository.save(group);
+
+        // 3. Mitglieder hinzufügen und Einladungen senden
+        if (request.getMemberEmails() != null && !request.getMemberEmails().isEmpty()) {
+            for (String email : request.getMemberEmails()) {
+                if (email != null && !email.trim().isEmpty()) {
+                    try {
+                        // Benutzer per Email finden
+                        Optional<User> memberUser = userService.getUserByEmail(email);
+
+                        GroupMember member = new GroupMember();
+                        member.setGroup(savedGroup);
+
+                        if (memberUser.isPresent()) {
+                            member.setUser(memberUser.get());
+                        } else {
+                            // Wenn Benutzer nicht existiert, nur Email speichern
+                            member.setUser(null); // oder Sie können einen Platzhalter-Benutzer erstellen
+                        }
+
+                        member.setInvitationStatus(GroupMember.InvitationStatus.PENDING);
+                        groupMemberRepository.save(member);
+
+                        // Einladungs-Email senden
+                        emailService.sendGroupInvitation(email, savedGroup.getName(),
+                                createdBy.getUsername(), savingGoal.getName());
+
+                    } catch (Exception e) {
+                        // Fehler protokollieren, aber fortfahren
+                        System.err.println("Failed to add member with email: " + email + ", error: " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return savedGroup;
+    }
 
     public Optional<Group> getGroupBySavingGoalId(Long savingGoalId, String username) {
         User user = userService.findByUsername(username);
@@ -48,40 +109,6 @@ public class GroupService {
         }
 
         return groupRepository.findBySavingGoalId(savingGoalId);
-    }
-
-    @Transactional
-    public Group createGroupForSavingGoal(Long savingGoalId, String groupName, String username) {
-        User user = userService.findByUsername(username);
-        SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
-                .orElseThrow(() -> new RuntimeException("Saving goal not found"));
-
-        // التحقق من أن هدف التوفير ينتمي للمستخدم المصادق
-        if (!savingGoal.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not authorized to create a group for this saving goal");
-        }
-
-        // التحقق من عدم وجود مجموعة لهذا الهدف بالفعل
-        if (groupRepository.existsBySavingGoalId(savingGoalId)) {
-            throw new RuntimeException("A group already exists for this saving goal");
-        }
-
-        // إنشاء المجموعة
-        Group group = new Group();
-        group.setSavingGoal(savingGoal);
-        group.setName(groupName);
-        group.setCreatedBy(user);
-
-        Group savedGroup = groupRepository.save(group);
-
-        // إضافة المنشئ كعضو في المجموعة
-        GroupMember creatorMember = new GroupMember();
-        creatorMember.setGroup(savedGroup);
-        creatorMember.setUser(user);
-        creatorMember.setInvitationStatus(InvitationStatus.ACCEPTED);
-        groupMemberRepository.save(creatorMember);
-
-        return savedGroup;
     }
 
     @Transactional
