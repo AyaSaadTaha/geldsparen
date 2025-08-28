@@ -11,12 +11,32 @@ function Profile() {
     const [accounts, setAccounts] = useState([
         {
             id: "1",
-            goalName: "Reise",
+            goalName: "Reise nach Ägypten",
             amount: 1000,
-            spare: 300,
+            spare: [300, 600, 200, 600, 200, 400],
             targetDate: "2025-12-31",
             invite: "lidiia@mail.com"
-        }
+        },
+        {
+            id: 1,
+            goalName: "Neues Auto",
+            amount: 5000,
+            spare: [100, 200, 200],
+            targetDate: "2025-09-31",
+            members: 2,
+            currentSaved: 2300,
+            progress: 46,
+        },
+        {
+            id: 2,
+            goalName: "Geburtstag Party",
+            amount: 3000,
+            spare: [500, 600, 800, 700],
+            targetDate: "2025-12-15",
+            invite: 2,
+            currentSaved: 1200,
+            progress: 40,
+        },
     ]);
 
 
@@ -68,7 +88,7 @@ function Profile() {
                     <AddAccounts onAdd={handleAdd}/>
                 } />
                 <Route path="actions" element={<Actions />} />
-                <Route path="dashboards" element={<Dashboards />} />
+                <Route path="dashboards" element={<Dashboards accounts={accounts}/>} />
             </Routes>
         </>
     )
