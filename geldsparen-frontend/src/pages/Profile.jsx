@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {AppBar, Toolbar, Typography, Container, Box, Button, Link as MLink} from '@mui/material'
 import {NavLink, Routes, Route, Navigate, Link} from 'react-router-dom'
 import Overview from './Overview'
@@ -43,6 +43,8 @@ function Profile() {
         },
     ]);
 
+    const [currentAccount, setCurrentAccount] = useState(null);
+
 
     function handleAdd(account) {
         setAccounts(prev => [...prev, account]);
@@ -51,6 +53,50 @@ function Profile() {
     function handleDelete(id) {
         setAccounts(prev => prev.filter(acc => acc.id !== id));
     }
+
+    function handleAccountSaved(account) {
+        setCurrentAccount(account);
+    }
+
+    useEffect(() => {
+        const fetchAccount = async () => {
+            const token = localStorage.getItem("token");
+            try {
+                const res = await fetch("http://localhost:8080/api/current-accounts", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (res.status === 404) {
+                    // if no account, empty array
+                    setCurrentAccount([]);
+                    return;
+                }
+
+                if (!res.ok) {
+                    console.error("Failed to load current account");
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("👉 Data received from the backend:", data); // { salary, payday, iban }
+                // array
+                setCurrentAccount([{
+                    id: "current",               // id for key
+                    goalName: "Current Account", // if needed, title
+                    salary: data.salary,
+                    payday: data.payday,
+                    iban: data.iban
+                }]);
+            } catch (e) {
+                console.error("Network error:", e);
+            }
+        };
+
+        fetchAccount();
+    }, []);
+
 
 
     return (
@@ -86,7 +132,7 @@ function Profile() {
             <Routes>
                 <Route path="/" element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={
-                    <Overview accounts={accounts} onDelete={handleDelete} />
+                    <Overview accounts={accounts} onDelete={handleDelete} currentAccount={currentAccount} />
                 } />
                 <Route path="add-accounts" element={
                     <AddAccounts onAdd={handleAdd}/>
