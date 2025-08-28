@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+    Box, Button, Typography, Paper, Grid, TextField, FormControlLabel, Checkbox,
+    FormControl, InputLabel, Select, MenuItem, IconButton, Stack, Alert, Dialog, DialogTitle, DialogContent
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/de";
 
 const SavingGoalPage = () => {
     // Initialize savingGoals with an empty array to prevent the TypeError
@@ -123,127 +134,227 @@ const SavingGoalPage = () => {
     };
 
     return (
-        <div className="saving-goals-container">
-            <h1>My Saving Goals</h1>
-            <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-                Create New Goal
-            </button>
+        <div>
+            <Typography variant="h5" fontWeight={800} align="center" mb={4} mt={4}>
+                My Saving Goals
+            </Typography>
 
-            {message && <div className="message-box">{message}</div>}
+            <Stack direction="row" justifyContent="center" mb={3}>
+                <Button
+                    variant="contained"
+                    onClick={() => setShowForm(true)}
+                    sx={{
+                        background: "linear-gradient(45deg, #FF8C00 0%, #FF0000 100%)",
+                        color: "white",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        transition: "0.3s",
+                        "&:hover": {
+                            background: "linear-gradient(45deg, #FF4500 0%, #CC0000 100%)",
+                            transform: "scale(1.03)",
+                            boxShadow: "0 4px 12px rgba(255, 69, 0, 0.4)",
+                        },
+                    }}
+                >
+                    Create New Goal
+                </Button>
+            </Stack>
+
+            {message && (
+                <Stack alignItems="center" mb={3}>
+                    <Alert severity="info" sx={{ maxWidth: 480, width: "100%" }}>
+                        {message}
+                    </Alert>
+                </Stack>
+            )}
 
             {showForm && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Create New Saving Goal</h2>
-                        <form onSubmit={handleFormSubmit}>
-                            <div className="form-group">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={isGroup}
-                                        onChange={(e) => setIsGroup(e.target.checked)}
-                                    />
-                                    Group Goal
-                                </label>
-                            </div>
-                            {isGroup && (
-                                <div className="form-group">
-                                    <label>Group Name</label>
-                                    <input
-                                        type="text"
-                                        name="groupName"
-                                        value={groupData.groupName}
-                                        onChange={(e) => setGroupData(prev => ({ ...prev, groupName: e.target.value }))}
-                                        required
-                                    />
-                                </div>
-                            )}
-                            <div className="form-group">
-                                <label>Goal Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={savingGoal.name}
-                                    onChange={handleSavingGoalChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Target Amount (€)</label>
-                                <input
-                                    type="number"
-                                    name="targetAmount"
-                                    value={savingGoal.targetAmount}
-                                    onChange={handleSavingGoalChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Deadline</label>
-                                <input
-                                    type="date"
-                                    name="deadline"
-                                    value={savingGoal.deadline}
-                                    onChange={handleSavingGoalChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Type</label>
-                                <select name="type" value={savingGoal.type} onChange={handleSavingGoalChange}>
-                                    <option value="TRIP">Trip</option>
-                                    <option value="BIRTHDAY">Birthday</option>
-                                    <option value="WEDDING">Wedding</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-                            {isGroup && (
-                                <div className="form-group member-emails-container">
-                                    <label>Member Emails</label>
-                                    {groupData.memberEmails.map((email, index) => (
-                                        <div key={index} className="member-email-input">
-                                            <input
-                                                type="email"
-                                                value={email}
-                                                onChange={(e) => handleMemberEmailChange(index, e)}
-                                                placeholder="Enter member email"
+                <Dialog open={showForm} onClose={() => setShowForm(false)} maxWidth="sm" fullWidth>
+                    <DialogTitle sx={{ fontWeight: 800 }}>Create New Saving Goal</DialogTitle>
+                    <DialogContent dividers>
+                        <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
+                                <form onSubmit={handleFormSubmit}>
+                                    <Grid container spacing={2}>
+
+                                        {/* Group Goal checkbox */}
+                                        <Grid item xs={12}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={isGroup}
+                                                        onChange={(e) => setIsGroup(e.target.checked)}
+                                                    />
+                                                }
+                                                label="Group Goal"
+                                            />
+                                        </Grid>
+
+                                        {/* Group Name (conditionally) */}
+                                        {isGroup && (
+                                            <Grid item xs={12}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Group Name"
+                                                    name="groupName"
+                                                    value={groupData.groupName}
+                                                    onChange={(e) =>
+                                                        setGroupData((prev) => ({ ...prev, groupName: e.target.value }))
+                                                    }
+                                                    required
+                                                />
+                                            </Grid>
+                                        )}
+
+                                        {/* Goal Name */}
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                fullWidth
+                                                label="Goal Name"
+                                                name="name"
+                                                value={savingGoal.name}
+                                                onChange={handleSavingGoalChange}
                                                 required
                                             />
-                                            {groupData.memberEmails.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    className="btn-remove"
-                                                    onClick={() => removeMemberEmail(index)}
+                                        </Grid>
+
+                                        {/* Target Amount */}
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                type="number"
+                                                inputProps={{ min: 0, step: 1 }}
+                                                label="Target Amount (€)"
+                                                name="targetAmount"
+                                                value={savingGoal.targetAmount}
+                                                onChange={handleSavingGoalChange}
+                                                required
+                                            />
+                                        </Grid>
+
+                                        {/* Deadline (DatePicker) */}
+                                        <Grid item xs={12} sm={6}>
+                                            <DatePicker
+                                                label="Deadline"
+                                                value={savingGoal.deadline ? dayjs(savingGoal.deadline) : null}
+                                                onChange={(v) =>
+                                                    handleSavingGoalChange({
+                                                        target: { name: "deadline", value: v ? v.format("YYYY-MM-DD") : "" },
+                                                    })
+                                                }
+                                                slotProps={{ textField: { fullWidth: true, required: true } }}
+                                            />
+                                        </Grid>
+
+                                        {/* Type Select */}
+                                        <Grid item xs={12} sm={6}>
+                                            <FormControl fullWidth>
+                                                <InputLabel id="type-label">Type</InputLabel>
+                                                <Select
+                                                    labelId="type-label"
+                                                    label="Type"
+                                                    name="type"
+                                                    value={savingGoal.type}
+                                                    onChange={handleSavingGoalChange}
                                                 >
-                                                    -
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <button
-                                        type="button"
-                                        className="btn-add"
-                                        onClick={addMemberEmail}
-                                    >
-                                        + Add Another Member
-                                    </button>
-                                </div>
-                            )}
-                            <div className="form-actions">
-                                <button type="submit" className="btn btn-success">
-                                    Create Goal
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowForm(false)}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                                                    <MenuItem value="TRIP">Trip</MenuItem>
+                                                    <MenuItem value="BIRTHDAY">Birthday</MenuItem>
+                                                    <MenuItem value="WEDDING">Wedding</MenuItem>
+                                                    <MenuItem value="OTHER">Other</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+
+                                        {/* Member Emails (conditionally for group) */}
+                                        {isGroup && (
+                                            <Grid item xs={12}>
+                                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                                    Member Emails
+                                                </Typography>
+
+                                                <Stack spacing={1}>
+                                                    {groupData.memberEmails.map((email, index) => (
+                                                        <Stack key={index} direction="row" spacing={1} alignItems="center">
+                                                            <TextField
+                                                                fullWidth
+                                                                type="email"
+                                                                placeholder="Enter member email"
+                                                                value={email}
+                                                                onChange={(e) => handleMemberEmailChange(index, e)}
+                                                                required
+                                                            />
+                                                            {groupData.memberEmails.length > 1 && (
+                                                                <IconButton
+                                                                    aria-label="remove member"
+                                                                    onClick={() => removeMemberEmail(index)}
+                                                                    size="small"
+                                                                >
+                                                                    <RemoveIcon />
+                                                                </IconButton>
+                                                            )}
+                                                        </Stack>
+                                                    ))}
+
+                                                    <Button
+                                                        type="button"
+                                                        startIcon={<AddIcon />}
+                                                        onClick={addMemberEmail}
+                                                        sx={{
+                                                            alignSelf: "flex-start",
+                                                            textTransform: "none",
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        Add Another Member
+                                                    </Button>
+                                                </Stack>
+                                            </Grid>
+                                        )}
+
+                                        {/* Actions */}
+                                        <Grid item xs={12}>
+                                            <Stack direction="row" spacing={2} justifyContent="flex-end">
+                                                <Button
+                                                    type="button"
+                                                    variant="outlined"
+                                                    onClick={() => setShowForm(false)}
+                                                    sx={{ textTransform: "none", borderRadius: 2 }}
+                                                >
+                                                    Cancel
+                                                </Button>
+
+                                                <Button
+                                                    variant="contained"
+                                                    type="submit"
+                                                    sx={{
+                                                        background: "linear-gradient(45deg, #FF8C00 0%, #FF0000 100%)",
+                                                        color: "white",
+                                                        fontWeight: 600,
+                                                        textTransform: "none",
+                                                        px: 3,
+                                                        py: 1,
+                                                        borderRadius: 2,
+                                                        transition: "0.3s",
+                                                        "&:hover": {
+                                                            background: "linear-gradient(45deg, #FF4500 0%, #CC0000 100%)",
+                                                            transform: "scale(1.03)",
+                                                            boxShadow: "0 4px 12px rgba(255, 69, 0, 0.4)",
+                                                        },
+                                                    }}
+                                                >
+                                                    Create Goal
+                                                </Button>
+                                            </Stack>
+                                        </Grid>
+                                    </Grid>
+                                </form>
+                            </LocalizationProvider>
+                        </Paper>
+                    </DialogContent>
+                </Dialog>
             )}
 
             <div className="saving-goals-list">
