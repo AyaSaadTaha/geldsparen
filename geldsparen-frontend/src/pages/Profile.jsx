@@ -13,6 +13,7 @@ import "../components/styles.css"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "../context/AuthContext.jsx";
+import axios from "axios";
 
 
 
@@ -24,6 +25,10 @@ function Profile() {
     const handleClose = () => setAnchorEl(null);
     const navigate = useNavigate();
     const go = (path) => { handleClose(); navigate(path); };
+    const { user } = useAuth();
+    const [currentAccount, setCurrentAccount] = useState(null);
+    const [savingGoals, setSavingGoals] = useState([]);
+    const [message, setMessage] = useState('');
 
     const [accounts, setAccounts] = useState([
         {
@@ -56,21 +61,44 @@ function Profile() {
         },
     ]);
 
-    const { user } = useAuth();
-    const [currentAccount, setCurrentAccount] = useState(null);
-
-
     function handleAdd(account) {
         setAccounts(prev => [...prev, account]);
     }
 
     function handleDelete(id) {
-        setAccounts(prev => prev.filter(acc => acc.id !== id));
+        setSavingGoals(prev => prev.filter(acc => acc.id !== id));
     }
 
     /*function handleAccountSaved(account) {
         setCurrentAccount(account);
     }*/
+
+
+    const fetchSavingGoals = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:8080/api/saving-goals', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Add a check to ensure the response data is an array before setting the state
+            if (Array.isArray(response.data)) {
+                setSavingGoals(response.data);
+                alert(response.data);
+            } else {
+                // If the response is not an array, log the error and set to an empty array
+                console.error("API response for saving goals is not an array:", response.data);
+                setSavingGoals([]);
+            }
+        } catch (error) {
+            console.error(error);
+            setMessage('Failed to fetch saving goals');
+            setSavingGoals([]); // Set to empty array on error to prevent breaking the UI
+        }
+    };
+
+    useEffect(() => {
+        fetchSavingGoals();
+    }, []);
 
     useEffect(() => {
         const fetchAccount = async () => {
@@ -176,7 +204,7 @@ function Profile() {
             <Routes>
                 <Route path="/" element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={
-                    <Overview accounts={accounts} onDelete={handleDelete} currentAccount={currentAccount} />
+                    <Overview accounts={savingGoals} onDelete={handleDelete} currentAccount={currentAccount} />
                 } />
                 <Route path="add-accounts" element={
                     <AddAccounts onAdd={handleAdd}/>

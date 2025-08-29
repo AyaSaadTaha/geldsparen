@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
-    Box, Button, Typography, Paper, Grid, TextField, FormControlLabel, Checkbox,
+    Button, Typography, Paper, Grid, TextField, FormControlLabel, Checkbox,
     FormControl, InputLabel, Select, MenuItem, IconButton, Stack, Alert, Dialog, DialogTitle, DialogContent
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -15,7 +15,6 @@ import "dayjs/locale/de";
 
 const SavingGoalPage = () => {
     // Initialize savingGoals with an empty array to prevent the TypeError
-    const [savingGoals, setSavingGoals] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [isGroup, setIsGroup] = useState(false);
     const [message, setMessage] = useState('');
@@ -33,31 +32,6 @@ const SavingGoalPage = () => {
         memberEmails: ['']
     });
 
-    useEffect(() => {
-        fetchSavingGoals();
-    }, []);
-
-    const fetchSavingGoals = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:8080/api/saving-goals', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            // Add a check to ensure the response data is an array before setting the state
-            if (Array.isArray(response.data)) {
-                setSavingGoals(response.data);
-                alert(response.data);
-            } else {
-                // If the response is not an array, log the error and set to an empty array
-                console.error("API response for saving goals is not an array:", response.data);
-                setSavingGoals([]);
-            }
-        } catch (error) {
-            console.error(error);
-            setMessage('Failed to fetch saving goals');
-            setSavingGoals([]); // Set to empty array on error to prevent breaking the UI
-        }
-    };
 
     const handleSavingGoalChange = (e) => {
         const { name, value } = e.target;

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-    Container,
     Grid,
     Card,
     CardHeader,
@@ -16,44 +15,15 @@ import {
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import "./savingsaccount.css"
 
-const SavingsAccount = () => {
-    // Mock data
-    const [accounts, setAccounts] = useState([
-        {
-            id: 1,
-            goalName: "Reise nach Ägypten",
-            amount: 5000,
-            spare: 900,
-            targetDate: "2025-09-31",
-            members: 2,
-            currentSaved: 2300,
-            progress: 46,
-        },
-        {
-            id: 2,
-            goalName: "Geburtstag Party",
-            amount: 3000,
-            spare: 500,
-            targetDate: "2025-12-15",
-            invite: 2,
-            currentSaved: 1200,
-            progress: 40,
-        },
-    ]);
+const SavingsAccount = ({accounts, onDelete}) => {
+    console.log("SavingsAccount ---- props", accounts);
 
-    const handleDelete = (id) => {
-        setAccounts(accounts.filter((acc) => acc.id !== id));
-    };
-
-    const formatDate = (dateString) => {
-        const d = new Date(dateString);
-        return isNaN(d) ? "—" : d.toLocaleDateString("de-DE");
-    };
 
     const fmtMoney = (n) =>
         typeof n === "number"
             ? n.toLocaleString("de-DE", { minimumFractionDigits: 0 })
             : "—";
+
 
     return (
         <div>
@@ -69,11 +39,11 @@ const SavingsAccount = () => {
             <Grid className="savings-container" container spacing={3}>
                 {accounts.map((acc) => {
                     const remaining =
-                        typeof acc.amount === "number" && typeof acc.currentSaved === "number"
-                            ? Math.max(0, acc.amount - acc.currentSaved)
+                        typeof acc.currentAmount === "number" && typeof acc.currentAmount === "number"
+                            ? Math.max(0, acc.targetAmount - acc.currentAmount)
                             : null;
 
-                    const members = acc.invite ?? acc.members ?? "—";
+                    const members = acc.members ?? acc.invite ?? "—";
 
                     return (
                         <Grid item xs={12} sm={6} md={4} key={acc.id} marginBottom={5}>
@@ -81,13 +51,13 @@ const SavingsAccount = () => {
                                 <CardHeader
                                     title={
                                         <Typography variant="h6" fontWeight={700} noWrap>
-                                            {acc.goalName}
+                                            {acc.name}
                                         </Typography>
                                     }
                                     action={
                                         <IconButton
                                             aria-label="Delete goal"
-                                            onClick={() => handleDelete(acc.id)}
+                                            onClick={() => onDelete(acc.id)}
                                             size="small"
                                         >
                                             <DeleteOutlineIcon />
@@ -97,31 +67,51 @@ const SavingsAccount = () => {
                                 />
 
                                 <CardContent sx={{ pt: 0 }}>
+                                    {/* Status + Type */}
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        mb={2}
+                                    >
+                                        <Chip
+                                            label={acc.status}
+                                            color={acc.status === "ACTIVE" ? "success" : "default"}
+                                            variant="outlined"
+                                            sx={{ fontWeight: 600 }}
+                                        />
+                                        <Chip label={acc.type} variant="outlined" sx={{ fontWeight: 600 }} />
+                                    </Stack>
+
+                                    {/* Details */}
                                     <Stack spacing={1.2} mb={1.5}>
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography color="text.secondary">Ziel</Typography>
-                                            <Typography fontWeight={600}>{fmtMoney(acc.amount)} €</Typography>
+                                            <Typography fontWeight={600}>{fmtMoney(acc.targetAmount)}</Typography>
                                         </Stack>
 
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography color="text.secondary">Monatlich</Typography>
-                                            <Typography fontWeight={600}>{fmtMoney(acc.spare)} €</Typography>
+                                            <Typography fontWeight={600}>{fmtMoney(acc.monthlyAmount)}</Typography>
                                         </Stack>
 
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography color="text.secondary">Datum</Typography>
-                                            <Typography fontWeight={600}>{formatDate(acc.targetDate)}</Typography>
+                                            <Typography fontWeight={600}>
+                                                {new Date(acc.deadline).toLocaleDateString("de-DE")}
+                                            </Typography>
                                         </Stack>
-
-                                        <Stack direction="row" justifyContent="space-between">
-                                            <Typography color="text.secondary">Mitglied</Typography>
-                                            <Typography fontWeight={600}>{members}</Typography>
-                                        </Stack>
+                                    </Stack>
+                                    <Stack direction="row" justifyContent="space-between">
+                                        <Typography color="text.secondary">Mitglied</Typography>
+                                        <Typography fontWeight={600}>{members}</Typography>
                                     </Stack>
 
                                     <Divider sx={{ my: 1.5 }} />
 
-                                    {/* Прогресс */}
+
+
+                                    {/*Progress bar*/}
                                     <Stack spacing={1}>
                                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                                             <Typography variant="body2" color="text.secondary">
@@ -129,23 +119,21 @@ const SavingsAccount = () => {
                                             </Typography>
                                             <Chip
                                                 size="small"
-                                                label={`${acc.progress ?? 0}%`}
+                                                label={`${acc.progressPercentage ?? 0}%`}
                                                 variant="outlined"
                                             />
                                         </Stack>
 
                                         <LinearProgress
                                             variant="determinate"
-                                            value={Math.min(100, Math.max(0, acc.progress || 0))}
+                                            value={Math.min(100, Math.max(0, acc.progressPercentage || 0))}
                                             sx={{ height: 10, borderRadius: 999 }}
                                         />
 
                                         <Stack direction="row" justifyContent="space-between">
-                                            <Typography fontWeight={700}>
-                                                {fmtMoney(acc.currentSaved)} €
-                                            </Typography>
+                                            <Typography fontWeight={700}>{fmtMoney(acc.currentAmount)}</Typography>
                                             <Typography color="text.secondary">
-                                                Rest: {remaining !== null ? fmtMoney(remaining) : "—"} €
+                                                Rest: {remaining !== null ? fmtMoney(remaining) : "—"}
                                             </Typography>
                                         </Stack>
                                     </Stack>
