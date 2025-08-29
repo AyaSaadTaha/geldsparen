@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class GroupService {
@@ -84,8 +85,15 @@ public class GroupService {
                         groupMemberRepository.save(member);
 
                         // Einladungs-Email senden
-                        emailService.sendGroupInvitation(email, savedGroup.getName(),
-                                createdBy.getUsername(), savingGoal.getName());
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                emailService.sendGroupInvitation(email, savedGroup.getName(),
+                                        createdBy.getUsername(), savingGoal.getName());
+                                System.out.println("Invitation email sent to: {}"+ email);
+                            } catch (Exception e) {
+                                System.out.println("Failed to send email to: {}"+ email+ e);
+                            }
+                        });
 
                     } catch (Exception e) {
                         // Fehler protokollieren, aber fortfahren

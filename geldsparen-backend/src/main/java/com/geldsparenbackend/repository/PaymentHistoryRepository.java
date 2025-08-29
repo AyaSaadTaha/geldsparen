@@ -13,14 +13,15 @@ import java.util.List;
 
 @Repository
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
-    List<PaymentHistory> findByMonthlyPayment(MonthlyPayment monthlyPayment);
-    List<PaymentHistory> findByUser(User user);
-    List<PaymentHistory> findByChangedBy(User user);
+    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.monthlyPayment.savingGoal.id = :savingGoalId")
+    List<PaymentHistory> findBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
 
-    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.changedAt BETWEEN :startDate AND :endDate")
-    List<PaymentHistory> findByChangeDateBetween(@Param("startDate") LocalDateTime startDate,
-                                                 @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.monthlyPayment.id = :paymentId")
+    List<PaymentHistory> findByMonthlyPaymentId(@Param("paymentId") Long paymentId);
 
-    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.changeReason = :reason")
-    List<PaymentHistory> findByChangeReason(@Param("reason") String reason);
+    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.user.id = :userId")
+    List<PaymentHistory> findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT ph FROM PaymentHistory ph WHERE ph.changedBy.id = :userId")
+    List<PaymentHistory> findByChangedByUserId(@Param("userId") Long userId);
 }

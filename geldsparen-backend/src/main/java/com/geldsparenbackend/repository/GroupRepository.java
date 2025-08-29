@@ -29,4 +29,10 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     // طريقة إضافية للتحقق من وجود مجموعة بـ savingGoalId
     @Query("SELECT COUNT(g) > 0 FROM Group g WHERE g.savingGoal.id = :savingGoalId")
     Boolean existsBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
+
+    @Query("SELECT g FROM Group g WHERE g.createdBy.id = :userId")
+    List<Group> findByCreatedBy(@Param("userId") Long userId);
+
+    @Query("SELECT g FROM Group g JOIN g.members gm WHERE gm.user.id = :userId AND gm.invitationStatus = 'ACCEPTED'")
+    List<Group> findByMemberId(@Param("userId") Long userId);
 }
