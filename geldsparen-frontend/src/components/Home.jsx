@@ -1,7 +1,8 @@
-import {Container, Paper, Typography} from "@mui/material";
+import {Paper, Typography} from "@mui/material";
 import Header from "./Header.jsx";
 import HeroSection from "./HeroSection.jsx";
 import "./styles.css"
+import Footer from "./Footer.jsx";
 
 
 export default function Home() {
@@ -10,10 +11,7 @@ export default function Home() {
             {/* Header  */}
             <Header />
             <HeroSection />
-            <Paper variant="outlined" sx={{ p: 3 }}>
-                <Typography color="text.secondary">Footer will be under hero section.</Typography>
-            </Paper>
-            {/*<Footer />*/}
+            <Footer />
         </div>
     )
 }

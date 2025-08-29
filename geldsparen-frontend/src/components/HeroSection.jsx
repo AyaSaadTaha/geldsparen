@@ -19,10 +19,6 @@ function HeroSection() {
                         <Typography variant="h6" className="hero-subtext">
                             Ein smarter Begleiter beim Sparen – mit cleveren Tools und intuitiven Funktionen behalten Sie Ihre Finanzen im Griff und erreichen Ihre Sparziele, Cent für Cent.
                         </Typography>
-
-                        <div className="cta-stack">
-                            <Button variant="contained" size="large" component={Link} to="/register">Register</Button>
-                        </div>
                     </div>
 
                     <div className="hero-right login-btn">
