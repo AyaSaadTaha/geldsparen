@@ -84,7 +84,7 @@ function Profile() {
 
                 if (res.status === 404) {
                     // if no account, empty array
-                    setCurrentAccount([]);
+                    setCurrentAccount(null);
                     return;
                 }
 
@@ -183,7 +183,7 @@ function Profile() {
                 } />
                 <Route path="actions" element={<Actions />} />
                 <Route path="dashboards" element={<Dashboards accounts={accounts}/>} />
-                <Route path="current-account" element={<CurrentAccountPage/>} />
+                <Route path="current-account" element={<CurrentAccountPage currentAccount={currentAccount}/>} />
                 <Route path="saving-goals" element={<SavingGoalPage/>} />
                 <Route path="spending-patterns" element={<SpendingPatternPage/>} />
                 <Route path="monthly-payments/:goalId" element={<MonthlyPaymentsPage/>} />

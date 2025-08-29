@@ -1,5 +1,6 @@
 package com.geldsparenbackend.service;
 
+import com.geldsparenbackend.exception.CurrentAccountAlreadyExistsException;
 import com.geldsparenbackend.model.CurrentAccount;
 import com.geldsparenbackend.model.User;
 import com.geldsparenbackend.repository.CurrentAccountRepository;
@@ -18,7 +19,7 @@ public class CurrentAccountService {
         // Check if the user already has a current account
         Optional<CurrentAccount> existingAccount = currentAccountRepository.findByUser(user);
         if (existingAccount.isPresent()) {
-            throw new IllegalStateException("Current account already exists for this user.");
+            throw new CurrentAccountAlreadyExistsException();
         }
 
         // Set the user on the new account and save it
