@@ -1,4 +1,5 @@
 package com.geldsparenbackend.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ public class CurrentAccount {
     private Long id;
     @OneToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     private BigDecimal salary;

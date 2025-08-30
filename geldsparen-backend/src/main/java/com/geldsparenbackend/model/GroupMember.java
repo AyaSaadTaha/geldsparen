@@ -1,5 +1,6 @@
 package com.geldsparenbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -14,11 +15,15 @@ public class GroupMember {
 
     @ManyToOne
     @JoinColumn(name = "group_id")
+    @JsonBackReference
     private Group group;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
+
+    @Column(nullable = false)
+    private String email; // immer die Email speichern!
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,12 +40,14 @@ public class GroupMember {
         }
     }
 
-    // تعريف enum داخل الكلاس
     public enum InvitationStatus {
         PENDING, ACCEPTED, DECLINED
     }
 
     // Getters and setters
+
+    public String getEmail() {return email;}
+    public void setEmail(String email) {this.email = email;}
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Group getGroup() { return group; }

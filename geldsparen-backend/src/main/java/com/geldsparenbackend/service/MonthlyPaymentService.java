@@ -6,6 +6,7 @@ import com.geldsparenbackend.model.User;
 import com.geldsparenbackend.repository.MonthlyPaymentRepository;
 import com.geldsparenbackend.repository.SavingGoalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,11 +26,12 @@ public class MonthlyPaymentService {
     private UserService userService;
 
     public List<MonthlyPayment> getMonthlyPaymentsBySavingGoalId(Long savingGoalId, String username) {
-        User user = userService.findByUsername(username);
+        User user = userService.getUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
         SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
                 .orElseThrow(() -> new RuntimeException("Saving goal not found"));
 
-        // التحقق من أن هدف التوفير ينتمي للمستخدم المصادق
         if (!savingGoal.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to access these payments");
         }

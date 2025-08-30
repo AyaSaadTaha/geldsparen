@@ -31,6 +31,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private CurrentAccount currentAccount;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

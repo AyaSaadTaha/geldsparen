@@ -47,7 +47,6 @@ public class SavingGoalService {
         if (!savingGoal.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to access this saving goal");
         }
-        System.out.println("save goal" + savingGoal);
         return savingGoal;
     }
 

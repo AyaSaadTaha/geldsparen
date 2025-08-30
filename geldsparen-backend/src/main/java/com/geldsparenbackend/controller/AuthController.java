@@ -59,9 +59,6 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
 
         try {
-
-            System.out.println("username"+loginRequest.usernameOrEmail);
-            System.out.println("Pass"+ loginRequest.password);
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsernameOrEmail(),
@@ -72,15 +69,11 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = jwtTokenProvider.generateToken(authentication);
-            System.out.println("das ist jwt" + jwt);
 
             Map<String, Object> response = new HashMap<>();
             response.put("accessToken", jwt);
             response.put("tokenType", "Bearer");
             response.put("message", "Login successful");
-
-            System.out.println("token :" + response);
-
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

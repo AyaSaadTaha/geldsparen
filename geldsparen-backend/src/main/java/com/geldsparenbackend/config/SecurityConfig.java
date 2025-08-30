@@ -62,9 +62,13 @@ public class SecurityConfig {
                         .requestMatchers("/static/**", "/resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/groups/**").authenticated()
+                        .requestMatchers("/api/payment-history/**").authenticated()
                         .requestMatchers("/api/saving-goals/**").authenticated()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/saving-goals/**").permitAll()
+                        .requestMatchers("/api/groups/**").permitAll()
+                        .requestMatchers("/api/payment-history/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

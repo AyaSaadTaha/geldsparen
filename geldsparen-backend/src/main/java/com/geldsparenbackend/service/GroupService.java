@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,6 +74,7 @@ public class GroupService {
 
                         GroupMember member = new GroupMember();
                         member.setGroup(savedGroup);
+                        member.setEmail(email);
 
                         if (memberUser.isPresent()) {
                             member.setUser(memberUser.get());
@@ -107,7 +109,8 @@ public class GroupService {
     }
 
     public Optional<Group> getGroupBySavingGoalId(Long savingGoalId, String username) {
-        User user = userService.findByUsername(username);
+        User user = userService.getUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
                 .orElseThrow(() -> new RuntimeException("Saving goal not found"));
 
@@ -194,17 +197,23 @@ public class GroupService {
         notificationService.sendGroupInvitationResponse(groupMember, response);
     }
 
-    public List<GroupMember> getGroupMembers(Long groupId, String username) {
-        User user = userService.findByUsername(username);
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
+    public List<GroupMember> getGroupMembers(Long savingGoalId, String username) {
+        User user = userService.getUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        // التحقق من أن المستخدم عضو في المجموعة
-        if (!groupMemberRepository.existsByGroupAndUser(group, user)) {
-            throw new RuntimeException("You are not a member of this group");
+        SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
+                .orElseThrow(() -> new RuntimeException("Saving goal not found"));
+
+        List<GroupMember> memberList= new ArrayList<>();
+        if (savingGoal!= null) {
+            Group group = groupRepository.findBySavingGoalId(savingGoalId)
+                    .orElseThrow(() -> new RuntimeException("Group not found"));
+
+            if (group!=null) {
+               memberList= group.getMembers();
+            }
         }
-
-        return groupMemberRepository.findByGroup(group);
+        return memberList;
     }
 
     @Transactional

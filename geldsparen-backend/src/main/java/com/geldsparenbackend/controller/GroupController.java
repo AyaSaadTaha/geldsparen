@@ -73,6 +73,7 @@ public class GroupController {
     public ResponseEntity<List<GroupMember>> getGroupMembers(
             @PathVariable Long groupId, Authentication authentication) {
         String username = authentication.getName();
+        System.out.println("hallo ich bin da");
         List<GroupMember> members = groupService.getGroupMembers(groupId, username);
         return ResponseEntity.ok(members);
     }

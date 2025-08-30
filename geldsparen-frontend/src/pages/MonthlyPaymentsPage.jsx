@@ -24,7 +24,6 @@ import "dayjs/locale/de";
 const MonthlyPaymentsPage = () => {
     const { goalId } = useParams();
     const [monthlyPayments, setMonthlyPayments] = useState([]);
-    const [paymentHistory, setPaymentHistory] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [message, setMessage] = useState('');
     const [savingGoal, setSavingGoal] = useState(null);
@@ -42,13 +41,10 @@ const MonthlyPaymentsPage = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                await Promise.all([
                     fetchSavingGoal(),
                     fetchMonthlyPayments(),
-                    fetchGroupMembers(),
-                    fetchMemberContributions(),
-                    fetchPaymentHistory()
-                ]);
+                    fetchGroupMembers()
+                    // fetchMemberContributions(),
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -78,7 +74,7 @@ const MonthlyPaymentsPage = () => {
             const response = await axios.get(`http://localhost:8080/api/monthly-payments/saving-goal/${goalId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setMonthlyPayments(response.data);
+            setMonthlyPayments(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             // Spezifische Behandlung für 404 (keine Zahlungen gefunden)
             if (error.response && error.response.status === 404) {
@@ -94,7 +90,7 @@ const MonthlyPaymentsPage = () => {
     const fetchGroupMembers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8080/api/groups/saving-goal/${goalId}/members`, {
+            const response = await axios.get(`http://localhost:8080/api/groups/${goalId}/members`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setGroupMembers(response.data);
@@ -114,19 +110,6 @@ const MonthlyPaymentsPage = () => {
         } catch (error) {
             console.log('Member contributions not available',error);
             setMemberContributions({});
-        }
-    };
-
-    const fetchPaymentHistory = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8080/api/payment-history/saving-goal/${goalId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setPaymentHistory(response.data);
-        } catch (error) {
-            console.log('Payment history not available' ,error);
-            setPaymentHistory([]);
         }
     };
 
@@ -150,8 +133,7 @@ const MonthlyPaymentsPage = () => {
             setShowForm(false);
             fetchMonthlyPayments();
             fetchSavingGoal();
-            fetchMemberContributions();
-            fetchPaymentHistory();
+            //fetchMemberContributions();
             setMessage('Monthly payment added successfully');
         } catch (error) {
             console.error(error);
@@ -168,8 +150,7 @@ const MonthlyPaymentsPage = () => {
 
             fetchMonthlyPayments();
             fetchSavingGoal();
-            fetchMemberContributions();
-            fetchPaymentHistory();
+            //fetchMemberContributions();
             setMessage('Payment status updated successfully');
         } catch (error) {
             console.error(error);
@@ -311,7 +292,6 @@ const MonthlyPaymentsPage = () => {
                 <Tabs value={activeTab} onChange={handleTabChange} centered>
                     <Tab icon={<PaidIcon />} label="Zahlungen" />
                     <Tab icon={<GroupIcon />} label="Gruppenmitglieder" />
-                    <Tab icon={<HistoryIcon />} label="Zahlungshistorie" />
                 </Tabs>
             </Paper>
 
@@ -434,49 +414,6 @@ const MonthlyPaymentsPage = () => {
                             </Grid>
                         ))}
                     </Grid>
-                </Box>
-            )}
-
-            {/* Payment History Tab */}
-            {activeTab === 2 && (
-                <Box>
-                    <Typography variant="h5" fontWeight={700} mb={3}>
-                        Zahlungshistorie
-                    </Typography>
-                    {paymentHistory.length === 0 ? (
-                        <Paper sx={{ p: 3, textAlign: 'center' }}>
-                            <Typography variant="body1" color="text.secondary">
-                                Noch keine Zahlungshistorie verfügbar
-                            </Typography>
-                        </Paper>
-                    ) : (
-                        <TableContainer component={Paper} elevation={3} sx={{ borderRadius: 3 }}>
-                            <Table>
-                                <TableHead sx={{ bgcolor: 'primary.main' }}>
-                                    <TableRow>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Datum</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Betrag</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Alter Status</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Neuer Status</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Grund</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Geändert von</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {paymentHistory.map((history, index) => (
-                                        <TableRow key={index} hover>
-                                            <TableCell>{formatDate(history.changedAt)}</TableCell>
-                                            <TableCell>{formatCurrency(history.amount)}</TableCell>
-                                            <TableCell>{getStatusText(history.oldStatus)}</TableCell>
-                                            <TableCell>{getStatusText(history.newStatus)}</TableCell>
-                                            <TableCell>{history.changeReason}</TableCell>
-                                            <TableCell>{history.changedBy?.username || 'System'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
                 </Box>
             )}
 
