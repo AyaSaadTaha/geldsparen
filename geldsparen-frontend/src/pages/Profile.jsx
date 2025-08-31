@@ -56,9 +56,16 @@ function Profile() {
         },
     ]);
 
-    const { user } = useAuth();
+    const { user,logout } = useAuth();
     const [currentAccount, setCurrentAccount] = useState(null);
 
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    };
 
     function handleAdd(account) {
         setAccounts(prev => [...prev, account]);
@@ -164,10 +171,10 @@ function Profile() {
                     </div>
                     {/* user e-mail */}
                     <Typography variant="body1">
-                        <strong><em>{user?.email}</em></strong>
+                        <strong><em>{user ? "Hallo " + user.email.split("@")[0] : ""}</em></strong>
                     </Typography>
                     <Typography variant="body1" marginLeft={2}>
-                        Log Out
+                        <Button variant="outlined"  onClick={handleLogout} className="login-btn">Log Out</Button>
                     </Typography>
                 </Toolbar>
             </AppBar>

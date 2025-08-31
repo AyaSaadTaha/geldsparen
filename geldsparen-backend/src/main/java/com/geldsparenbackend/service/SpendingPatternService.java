@@ -35,10 +35,11 @@ public class SpendingPatternService {
         CurrentAccount acc = currentAccountService.findByUser(user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Current account not found"));
 
-        BigDecimal totalExpenses = spendingPattern.getFood()
+        BigDecimal totalExpenses =
+                 spendingPattern.getFood()
                 .add(spendingPattern.getClothes())
-                .add(spendingPattern.getMiscellaneous())
-                .add(spendingPattern.getRenter());
+                 .add(spendingPattern.getRenter())
+                .add(spendingPattern.getMiscellaneous());
 
         spendingPattern.setTotal_expenses(totalExpenses);
         spendingPattern.setTotal_income(acc.getSalary());
@@ -53,6 +54,7 @@ public class SpendingPatternService {
             patternToUpdate.setRenter(spendingPattern.getRenter());
             patternToUpdate.setMiscellaneous(spendingPattern.getMiscellaneous());
             patternToUpdate.setTotal_expenses(totalExpenses);
+            patternToUpdate.setTotal_income(acc.getSalary());
             patternToUpdate.setSavings(spendingPattern.getSavings());
             return spendingPatternRepository.save(patternToUpdate);
         } else {
@@ -92,7 +94,7 @@ public class SpendingPatternService {
 
         spendingPattern.setFood(spendingPatternDetails.getFood());
         spendingPattern.setClothes(spendingPatternDetails.getClothes());
-        spendingPattern.setClothes(spendingPatternDetails.getRenter());
+        spendingPattern.setRenter(spendingPatternDetails.getRenter());
         spendingPattern.setMiscellaneous(spendingPatternDetails.getMiscellaneous());
         spendingPattern.setTotal_expenses(totalExpenses);
         spendingPattern.setTotal_income(acc.getSalary());

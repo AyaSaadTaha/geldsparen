@@ -43,7 +43,7 @@ const SpendingPatternPage = () => {
             setIsEditing(false);
         } catch (error) {
             if (error.response?.status === 404) {
-                setIsEditing(true); // لو مفيش بيانات، افتح وضع الإنشاء
+                setIsEditing(true);
             } else {
                 setError('Ausgabemuster konnte nicht abgerufen werden: ' + (error.response?.data?.message || error.message));
             }
@@ -101,7 +101,7 @@ const SpendingPatternPage = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const formattedValue = value.replace(/[^0-9.]/g, ''); // بس أرقام ونقطة عشرية
+        const formattedValue = value.replace(/[^0-9.]/g, '');
         setSpendingPattern(prev => ({
             ...prev,
             [name]: formattedValue
@@ -114,7 +114,7 @@ const SpendingPatternPage = () => {
 
     const handleCancel = () => {
         if (spendingPattern.id) {
-            fetchSpendingPattern(); // ارجع للبيانات الأصلية
+            fetchSpendingPattern();
         } else {
             setSpendingPattern({
                 id: null,
@@ -188,6 +188,21 @@ const SpendingPatternPage = () => {
                             </div>
 
                             <div className="form-group">
+                                <label>Miete (€)</label>
+                                <input
+                                    type="text"
+                                    name="renter"
+                                    value={spendingPattern.renter}
+                                    onChange={handleChange}
+                                    onFocus={handleFocus}
+                                    placeholder="Betrag eingeben"
+                                    required
+                                    disabled={!isEditing}
+                                    className={!isEditing ? 'read-only' : ''}
+                                />
+                            </div>
+
+                            <div className="form-group">
                                 <label>Sonstiges (€)</label>
                                 <input
                                     type="text"
@@ -202,20 +217,7 @@ const SpendingPatternPage = () => {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label>Miete (€)</label>
-                                <input
-                                    type="text"
-                                    name="renter"
-                                    value={spendingPattern.renter}
-                                    onChange={handleChange}
-                                    onFocus={handleFocus}
-                                    placeholder="Betrag eingeben"
-                                    required
-                                    disabled={!isEditing}
-                                    className={!isEditing ? 'read-only' : ''}
-                                />
-                            </div>
+
                         </div>
                     </div>
 
@@ -255,13 +257,14 @@ const SpendingPatternPage = () => {
                             <span className="value">€{parseFloat(spendingPattern.clothes || 0).toFixed(2)}</span>
                         </div>
                         <div className="summary-item">
-                            <span className="label">Sonstiges:</span>
-                            <span className="value">€{parseFloat(spendingPattern.miscellaneous || 0).toFixed(2)}</span>
-                        </div>
-                        <div className="summary-item">
                             <span className="label">Miete:</span>
                             <span className="value">€{parseFloat(spendingPattern.renter || 0).toFixed(2)}</span>
                         </div>
+                        <div className="summary-item">
+                            <span className="label">Sonstiges:</span>
+                            <span className="value">€{parseFloat(spendingPattern.miscellaneous || 0).toFixed(2)}</span>
+                        </div>
+
                         <div className="summary-item highlight">
                             <span className="label">Gesamtausgaben:</span>
                             <span className="value">€{parseFloat(spendingPattern.total_expenses || 0).toFixed(2)}</span>
