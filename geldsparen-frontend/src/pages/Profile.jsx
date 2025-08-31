@@ -59,6 +59,10 @@ function Profile() {
     const { user,logout } = useAuth();
     const [currentAccount, setCurrentAccount] = useState(null);
 
+    const hasCurrent = Array.isArray(currentAccount)
+        ? currentAccount.length > 0
+        : !!currentAccount;
+
 
     const handleLogout = () => {
         logout();
@@ -190,7 +194,7 @@ function Profile() {
                 } />
                 <Route path="actions" element={<Actions />} />
                 <Route path="dashboards" element={<Dashboards accounts={accounts}/>} />
-                <Route path="current-account" element={<CurrentAccountPage/>} />
+                <Route path="current-account" element={<CurrentAccountPage hasCurrentAccount={hasCurrent}/>} />
                 <Route path="saving-goals" element={<SavingGoalPage/>} />
                 <Route path="spending-patterns" element={<SpendingPatternPage/>} />
                 <Route path="monthly-payments/:goalId" element={<MonthlyPaymentsPage/>} />
