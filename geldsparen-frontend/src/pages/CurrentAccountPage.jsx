@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import {Box, Paper, Grid, TextField, Typography, Button, Alert, Stack} from "@mui/material";
+import { Card, CardContent } from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-const CurrentAccountForm = () => {
+const CurrentAccountForm = ({ currentAccount }) => {
     const [salary, setSalary] = useState('');
     const [payday, setPayday] = useState('');
     const [iban, setIban] = useState('');
     const [message, setMessage] = useState('');
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,7 +41,36 @@ const CurrentAccountForm = () => {
         }
     };
 
+    if (currentAccount) {
+        return (
+            <Card
+                sx={{
+                    maxWidth: 500,
+                    mx: "auto",
+                    mt: 6,
+                    p: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    bgcolor: "#fff8e1",
+                    border: "1px solid #ff9800",
+                    borderRadius: 3,
+                    boxShadow: 3,
+                }}
+            >
+                <WarningAmberIcon sx={{ fontSize: 40, color: "#ff9800", mr: 2 }} />
+                <CardContent sx={{ p: 0 }}>
+                    <Typography variant="h6" color="text.primary" gutterBottom>
+                        Current Account Already Exists
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        You cannot create another one.
+                    </Typography>
+                </CardContent>
+            </Card>
+        );
+    }
     return (
+
         <Box sx={{ py: 6 }}>
             <Typography
                 variant="h5"
