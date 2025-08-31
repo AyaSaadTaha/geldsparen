@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import SavingsDiagram from "../components/SavingsDiagram.jsx";
 import SpendingsDiagram from "../components/SpendingsDiagram.jsx";
 import axios from "axios";
+import {Typography} from "@mui/material";
 
 
 function Dashboards({accounts}){
@@ -29,7 +30,24 @@ function Dashboards({accounts}){
 
     return (
         <div>
-            <p>Your dashboards overview.</p>
+            <Typography
+                component="h1"
+                variant="h4"
+                sx={{
+                    m: 0,
+                    mb: 2,
+                    mt: 2,
+                    fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+                    fontWeight: 800,
+                    fontSize: '2.125rem',
+                    lineHeight: 1.235,
+                    letterSpacing: '0.00735em',
+                    color: '#8b5cf7',
+                    textAlign: 'center',
+                }}
+            >
+                Ihre Dashboard-Übersicht
+            </Typography>
             <div style={{ marginTop: 16 }}>
                 {loading && <p>Loading spending data...</p>}
                 {!loading && spendingPattern && (

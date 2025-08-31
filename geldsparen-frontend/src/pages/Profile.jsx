@@ -13,7 +13,8 @@ import "../components/styles.css"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "../context/AuthContext.jsx";
-
+import axios from "axios";
+import Footer from "../components/Footer.jsx";
 
 
 function Profile() {
@@ -24,6 +25,10 @@ function Profile() {
     const handleClose = () => setAnchorEl(null);
     const navigate = useNavigate();
     const go = (path) => { handleClose(); navigate(path); };
+
+    const [savingGoals, setSavingGoals] = useState([]);
+    const [message, setMessage] = useState('');
+
 
     const [accounts, setAccounts] = useState([
         {
@@ -76,7 +81,7 @@ function Profile() {
     }
 
     function handleDelete(id) {
-        setAccounts(prev => prev.filter(acc => acc.id !== id));
+        setSavingGoals(prev => prev.filter(acc => acc.id !== id));
     }
 
     /*function handleAccountSaved(account) {
@@ -122,10 +127,35 @@ function Profile() {
         fetchAccount();
     }, []);
 
+    useEffect(() => {
+        const fetchSavingGoals = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:8080/api/saving-goals', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (Array.isArray(response.data)) {
+                    setSavingGoals(response.data);
+                } else {
+                    console.error("API response for saving goals is not an array:", response.data);
+                    setSavingGoals([]);
+                }
+            } catch (error) {
+                console.error(error);
+                setMessage('Failed to fetch saving goals');
+                setSavingGoals([]);
+            }
+        };
+
+        fetchSavingGoals();
+    }, []);
+
 
 
     return (
         <>
+            <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
             <AppBar className="header-appbar" position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', display:'flex', }}>
                 <Toolbar className="header-toolbar">
                     <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
@@ -139,7 +169,7 @@ function Profile() {
                             gap: 1,
                             py: 1,
                         }}>
-                            <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Overview</Button></NavLink>
+                            <NavLink to="overview" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Übersicht</Button></NavLink>
                             <Button
                                 className="profile-links"
                                 variant="text"
@@ -149,7 +179,7 @@ function Profile() {
                                 aria-haspopup="true"
                                 aria-expanded={open ? "true" : undefined}
                             >
-                                Add Account
+                                Konto hinzufügen
                             </Button>
                             <Menu
                                 id="add-account-menu"
@@ -161,16 +191,16 @@ function Profile() {
                                 sx={{ zIndex: (t) => t.zIndex.appBar + 1 }}
                             >
                                 <MenuItem onClick={() => go("/current-account")}>
-                                   Current account
+                                    Girokonto
                                 </MenuItem>
                                 <MenuItem onClick={() => go("/saving-goals")}>
-                                    Saving account
+                                    Sparkonto
                                 </MenuItem>
                             </Menu>
 
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
-                            <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Spending Page</Button></NavLink>
-                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Monthly Payments</Button></NavLink>
+                            <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Ausgaben</Button></NavLink>
+                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Monatliche Zahlungen</Button></NavLink>
                         </Box>
                     </div>
                     {/* user e-mail */}
@@ -184,10 +214,11 @@ function Profile() {
             </AppBar>
 
             {/* Routes*/}
+            <Box component="main" sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <Routes>
                 <Route path="/" element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={
-                    <Overview accounts={accounts} onDelete={handleDelete} currentAccount={currentAccount} />
+                    <Overview onDelete={handleDelete} currentAccount={currentAccount} savingGoals={savingGoals} />
                 } />
                 <Route path="add-accounts" element={
                     <AddAccounts onAdd={handleAdd}/>
@@ -199,6 +230,9 @@ function Profile() {
                 <Route path="spending-patterns" element={<SpendingPatternPage/>} />
                 <Route path="monthly-payments/:goalId" element={<MonthlyPaymentsPage/>} />
             </Routes>
+            </Box>
+                <Footer />
+            </Box>
         </>
     )
 }

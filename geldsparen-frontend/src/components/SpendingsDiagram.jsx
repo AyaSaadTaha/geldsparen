@@ -11,9 +11,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 const LegendCard = ({ data, visible, onToggle, totalVisible }) => (
     <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', width: 320, flex: '0 0 320px' }}>
         <CardHeader
-            title={<Typography variant="subtitle1" fontWeight={700}>Categories</Typography>}
+            title={<Typography variant="subtitle1" fontWeight={700}>Kategorien</Typography>}
             subheader={<Typography variant="caption" color="text.secondary">
-                {totalVisible > 0 ? `€${totalVisible.toFixed(2)} total` : 'No data'}
+                {totalVisible > 0 ? `€${totalVisible.toFixed(2)} gesamt` : 'No data'}
             </Typography>}
             sx={{ pb: 0 }}
         />
@@ -58,18 +58,18 @@ const LegendCard = ({ data, visible, onToggle, totalVisible }) => (
     </Card>
 );
 
-const SpendingsDiagram = ({ spendingPattern, legendPosition = 'right', title = 'Spending Overview' }) => {
+const SpendingsDiagram = ({ spendingPattern, legendPosition = 'right', title = 'Ausgabenübersicht' }) => {
     const [visibleCategories, setVisibleCategories] = React.useState({
-        Shopping: true, Rent: true, Bills: true, Food: true
+        Einkaufen: true, Mieten: true, Nebenkosten: true, Lebensmittel: true
     });
 
     const toNum = (v) => parseFloat((v ?? 0).toString ? (v ?? 0).toString() : v) || 0;
 
     const allData = [
-        { name: 'Shopping', value: toNum(spendingPattern?.clothes) + toNum(spendingPattern?.miscellaneous), color: '#8B5CF6' },
-        { name: 'Rent',     value: toNum(spendingPattern?.renter), color: '#10B981' },
-        { name: 'Bills',    value: toNum(spendingPattern?.miscellaneous) * 0.3, color: '#F59E0B' },
-        { name: 'Food',     value: toNum(spendingPattern?.food), color: '#EF4444' }
+        { name: 'Einkaufen', value: toNum(spendingPattern?.clothes) + toNum(spendingPattern?.miscellaneous), color: '#8B5CF6' },
+        { name: 'Mieten',     value: toNum(spendingPattern?.renter), color: '#10B981' },
+        { name: 'Nebenkosten',    value: toNum(spendingPattern?.miscellaneous) * 0.3, color: '#F59E0B' },
+        { name: 'Lebensmittel',     value: toNum(spendingPattern?.food), color: '#EF4444' }
     ];
 
     const chartData = allData.filter(d => d.value > 0 && visibleCategories[d.name]);

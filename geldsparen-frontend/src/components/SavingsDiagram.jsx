@@ -22,12 +22,12 @@ const SavingsDiagram = ({accounts = []}) => {
     const monthlyTotal = data.reduce((s, d) => s + d.value, 0);
     return (
         <div>
-            <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <Card variant="outlined" sx={{ borderRadius: 3, margin: '0 120px' }}>
                 <CardHeader
-                    title={<Typography variant="h6" align="center" fontWeight={800}>Savings</Typography>}
+                    title={<Typography variant="h6" align="center" fontWeight={800}>Ersparnisse</Typography>}
                     subheader={
                         <Typography align="center">
-                            Monthly total: {new Intl.NumberFormat("de-DE").format(monthlyTotal)} €
+                            Monatliche Summe: {new Intl.NumberFormat("de-DE").format(monthlyTotal)} €
                         </Typography>
                     }
                     sx={{ pb: 0 }}
@@ -61,7 +61,7 @@ const SavingsDiagram = ({accounts = []}) => {
                         </ResponsiveContainer>
                     </div>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Each column = monthly <code>spare</code> amount for the goal.
+                        Jede Spalte steht für den monatlichen <code>Sparbetrag</code> des Ziels.
                     </Typography>
                 </CardContent>
             </Card>
