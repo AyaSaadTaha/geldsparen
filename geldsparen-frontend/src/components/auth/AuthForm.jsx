@@ -80,7 +80,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                 }
             } else {
                 const result = await register({
-                    username: formData.username,
+                    username: formData.email,
                     email: formData.email,
                     password: formData.password
                 });
