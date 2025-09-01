@@ -5,7 +5,7 @@ import {
     Box, Button, Typography, Paper, Grid, TextField, FormControlLabel, Checkbox,
     FormControl, InputLabel, Select, MenuItem, IconButton, Stack, Alert, Dialog,
     DialogTitle, DialogContent, Card, CardContent, LinearProgress, Chip,
-    InputAdornment, Fab, Divider
+    InputAdornment, Fab, Divider, Tabs, Tab
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -29,6 +29,7 @@ const SavingGoalPage = () => {
     const [message, setMessage] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('ALL');
+    const [tabValue, setTabValue] = useState(0); // 0 for all, 1 for personal, 2 for group
     const navigate = useNavigate();
 
     const [savingGoal, setSavingGoal] = useState({
@@ -49,7 +50,7 @@ const SavingGoalPage = () => {
 
     useEffect(() => {
         filterGoals();
-    }, [savingGoals, searchQuery, filterType]);
+    }, [savingGoals, searchQuery, filterType, tabValue]);
 
     const fetchSavingGoals = async () => {
         try {
@@ -87,7 +88,18 @@ const SavingGoalPage = () => {
             results = results.filter(goal => goal.type === filterType);
         }
 
+        // Filter by tab selection
+        if (tabValue === 1) { // Personal goals only
+            results = results.filter(goal => goal.isPersonal);
+        } else if (tabValue === 2) { // Group goals only
+            results = results.filter(goal => goal.isGroup);
+        }
+
         setFilteredGoals(results);
+    };
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
     };
 
     const handleSavingGoalChange = (e) => {
@@ -191,6 +203,21 @@ const SavingGoalPage = () => {
             <Typography variant="subtitle1" align="center" mb={4} color="text.secondary">
                 Verwalten Sie Ihre persönlichen und gemeinsamen Sparziele
             </Typography>
+
+            {/* Tabs for filtering */}
+            <Paper elevation={2} sx={{ p: 1, mb: 3, borderRadius: 3 }}>
+                <Tabs
+                    value={tabValue}
+                    onChange={handleTabChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    centered
+                >
+                    <Tab label="Alle Sparziele" />
+                    <Tab label="Persönliche Ziele" />
+                    <Tab label="Gruppenziele" />
+                </Tabs>
+            </Paper>
 
             {/* Search and Filter Section */}
             <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
@@ -312,6 +339,17 @@ const SavingGoalPage = () => {
                                         </Typography>
                                     )}
 
+                                    {/* إضافة مؤشر إذا كان الهدف تمت دعوة المستخدم إليه */}
+                                    {goal.isGroup && goal.isInvited && (
+                                        <Chip
+                                            label="Eingeladen"
+                                            size="small"
+                                            color="secondary"
+                                            variant="outlined"
+                                            sx={{ mb: 1 }}
+                                        />
+                                    )}
+
                                     <Chip
                                         label={getTypeLabel(goal.type)}
                                         size="small"
@@ -380,7 +418,7 @@ const SavingGoalPage = () => {
                 </Grid>
             )}
 
-            {/* Create Goal Dialog - IMPROVED BUTTON PLACEMENT */}
+            {/* Create Goal Dialog */}
             <Dialog open={showForm} onClose={() => setShowForm(false)} maxWidth="sm" fullWidth>
                 <DialogTitle sx={{
                     fontWeight: 800,

@@ -5,7 +5,7 @@ import {
     Box, Button, Typography, Paper, Grid, TextField, Card, CardContent,
     LinearProgress, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    IconButton, Stack, Alert, Divider, Tabs, Tab
+    IconButton, Stack, Alert, Divider, Tabs, Tab, CircularProgress
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -28,6 +28,7 @@ const MonthlyPaymentsPage = () => {
     const [message, setMessage] = useState('');
     const [savingGoal, setSavingGoal] = useState(null);
     const [groupMembers, setGroupMembers] = useState([]);
+    const [groupMembersAusstehend, setGroupMembersAusstehend] = useState([]);
     const [memberContributions, setMemberContributions] = useState({});
     const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -41,10 +42,11 @@ const MonthlyPaymentsPage = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
+                await Promise.all([
                     fetchSavingGoal(),
                     fetchMonthlyPayments(),
                     fetchGroupMembers()
-                    // fetchMemberContributions(),
+                ]);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -79,10 +81,11 @@ const MonthlyPaymentsPage = () => {
             // Spezifische Behandlung für 404 (keine Zahlungen gefunden)
             if (error.response && error.response.status === 404) {
                 setMonthlyPayments([]);
+                setMessage('Keine monatlichen Zahlungen gefunden');
             } else {
                 const errorMessage = handleApiError(error, 'Failed to fetch monthly payments');
                 setMessage(errorMessage);
-                console.error(error);
+                console.error('Error fetching payments:', error);
             }
         }
     };
@@ -93,10 +96,17 @@ const MonthlyPaymentsPage = () => {
             const response = await axios.get(`http://localhost:8080/api/groups/${goalId}/members`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setGroupMembers(response.data);
+            const data = response.data;
+            const members = data.filter(m => m.invitationStatus === "ACCEPTED");
+            const membersAusstehend = data.filter(m => m.invitationStatus === "PENDING");
+
+            setGroupMembers(members);
+            setGroupMembersAusstehend(membersAusstehend);
+
         } catch (error) {
             console.log('Group members not available or personal goal', error);
             setGroupMembers([]);
+            setGroupMembersAusstehend([]);
         }
     };
 
@@ -131,13 +141,12 @@ const MonthlyPaymentsPage = () => {
 
             setPayment({ amount: '', dueDate: '' });
             setShowForm(false);
-            fetchMonthlyPayments();
-            fetchSavingGoal();
-            //fetchMemberContributions();
-            setMessage('Monthly payment added successfully');
+            await fetchMonthlyPayments();
+            await fetchSavingGoal();
+            setMessage('Monatliche Zahlung erfolgreich hinzugefügt ✅');
         } catch (error) {
-            console.error(error);
-            setMessage('Failed to add monthly payment');
+            console.error('Error adding payment:', error);
+            setMessage('Monatliche Zahlung konnte nicht hinzugefügt werden');
         }
     };
 
@@ -148,12 +157,11 @@ const MonthlyPaymentsPage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            fetchMonthlyPayments();
-            fetchSavingGoal();
-            //fetchMemberContributions();
-            setMessage('Payment status updated successfully');
+            await fetchMonthlyPayments();
+            await fetchSavingGoal();
+            setMessage('„Zahlungsstatus erfolgreich aktualisiert“ ✅');
         } catch (error) {
-            console.error(error);
+            console.error('„Fehler beim Aktualisieren des Zahlungsstatus“:');
             setMessage('Failed to update payment status');
         }
     };
@@ -207,9 +215,6 @@ const MonthlyPaymentsPage = () => {
         }
     };
 
-    if (!savingGoal) {
-        return <div>Loading...</div>;
-    }
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -217,6 +222,14 @@ const MonthlyPaymentsPage = () => {
                 <Typography variant="h6" sx={{ ml: 2 }}>
                     Loading...
                 </Typography>
+            </Box>
+        );
+    }
+
+    if (!savingGoal) {
+        return (
+            <Box sx={{ p: 3 }}>
+                <Alert severity="error">Sparziel nicht gefunden</Alert>
             </Box>
         );
     }
@@ -258,10 +271,10 @@ const MonthlyPaymentsPage = () => {
                     </Grid>
                     <Grid item xs={12} sm={4}>
                         <Typography variant="body2" color="text.secondary">
-                            Zielbetrag:
+                            Zielbetrag jeder Monat:
                         </Typography>
                         <Typography variant="h5" fontWeight={600}>
-                            {formatCurrency(savingGoal.targetAmount)}
+                            {formatCurrency(savingGoal.monthlyAmount)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={4}>
@@ -269,7 +282,7 @@ const MonthlyPaymentsPage = () => {
                             Verbleibend:
                         </Typography>
                         <Typography variant="h5" fontWeight={600}>
-                            {formatCurrency(savingGoal.targetAmount - (savingGoal.currentAmount || 0))}
+                            {formatCurrency((savingGoal.total_monthly_amount) - (savingGoal.currentAmount || 0))}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -282,7 +295,7 @@ const MonthlyPaymentsPage = () => {
             </Paper>
 
             {message && (
-                <Alert severity={message.includes('Failed') ? 'error' : 'success'} sx={{ mb: 3 }}>
+                <Alert severity={message.includes('Failed') || message.includes('konnte nicht') ? 'error' : 'success'} sx={{ mb: 3 }}>
                     {message}
                 </Alert>
             )}
@@ -291,7 +304,8 @@ const MonthlyPaymentsPage = () => {
             <Paper sx={{ mb: 3 }}>
                 <Tabs value={activeTab} onChange={handleTabChange} centered>
                     <Tab icon={<PaidIcon />} label="Zahlungen" />
-                    <Tab icon={<GroupIcon />} label="Gruppenmitglieder" />
+                    <Tab icon={<GroupIcon />} label="Mitglieder Akzeptiert" />
+                    <Tab icon={<GroupIcon />} label="Mitglieder Ausstehend" />
                 </Tabs>
             </Paper>
 
@@ -383,7 +397,7 @@ const MonthlyPaymentsPage = () => {
                 </Box>
             )}
 
-            {/* Group Members Tab */}
+            {/* Group Members Akzeptiert Tab */}
             {activeTab === 1 && groupMembers.length > 0 && (
                 <Box>
                     <Typography variant="h5" fontWeight={700} mb={3}>
@@ -391,6 +405,40 @@ const MonthlyPaymentsPage = () => {
                     </Typography>
                     <Grid container spacing={2}>
                         {groupMembers.map((member, index) => (
+                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Card variant="outlined" sx={{ height: '100%' }}>
+                                    <CardContent>
+                                        <Box display="flex" alignItems="center" mb={1}>
+                                            <PersonIcon color="primary" sx={{ mr: 1 }} />
+                                            <Typography variant="subtitle1" fontWeight={600}>
+                                                {member.user?.username || member.email}
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Beitrag: {formatCurrency(memberContributions[member.user?.username] || 0)}
+                                        </Typography>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={savingGoal.targetAmount > 0 ?
+                                                ((memberContributions[member.user?.username] || 0) / savingGoal.targetAmount) * 100 : 0}
+                                            sx={{ mt: 1, height: 8, borderRadius: 4 }}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+            )}
+
+            {/* Group Members Ausstehend Tab */}
+            {activeTab === 2 && groupMembersAusstehend.length > 0 && (
+                <Box>
+                    <Typography variant="h5" fontWeight={700} mb={3}>
+                        Gruppen Mitglieder Ausstehend
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {groupMembersAusstehend.map((member, index) => (
                             <Grid item xs={12} sm={6} md={4} key={index}>
                                 <Card variant="outlined" sx={{ height: '100%' }}>
                                     <CardContent>

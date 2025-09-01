@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
-@ToString(exclude = {"savingGoals"}) // Exclude all relationships
+@ToString(exclude = {"savingGoals","notifications"}) // Exclude all relationships
 
 public class User {
     @Id

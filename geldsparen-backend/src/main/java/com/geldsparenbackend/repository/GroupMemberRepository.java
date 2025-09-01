@@ -16,7 +16,12 @@ import java.util.Optional;
 @Repository
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
     // NEW: Find by user and invitation status
-    List<GroupMember> findByUserAndInvitationStatus(User user, GroupMember.InvitationStatus invitationStatus);
+
+    @Query("SELECT gm FROM GroupMember gm WHERE gm.user = :user AND gm.invitationStatus = :status")
+    List<GroupMember> findByUserAndInvitationStatus(
+            @Param("user") User user,
+            @Param("status") GroupMember.InvitationStatus status);
+
 
     // NEW: Find by email and invitation status (for users who haven't registered yet)
     List<GroupMember> findByEmailAndInvitationStatus(String email, GroupMember.InvitationStatus invitationStatus);

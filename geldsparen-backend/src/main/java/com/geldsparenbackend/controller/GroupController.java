@@ -29,14 +29,14 @@ public class GroupController {
 
         return ResponseEntity.ok(group);
     }
+
     @GetMapping("/saving-goal/{savingGoalId}")
     public ResponseEntity<Group> getGroupBySavingGoalId(
             @PathVariable Long savingGoalId, Authentication authentication) {
         String username = authentication.getName();
         Optional<Group> group = groupService.getGroupBySavingGoalId(savingGoalId, username);
 
-        return group.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return group.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{groupId}/members")
@@ -69,12 +69,10 @@ public class GroupController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{groupId}/members")
-    public ResponseEntity<List<GroupMember>> getGroupMembers(
-            @PathVariable Long groupId, Authentication authentication) {
+    @GetMapping("/{savingGoalId}/members")
+    public ResponseEntity<List<GroupMember>> getGroupMembers(@PathVariable Long savingGoalId, Authentication authentication) {
         String username = authentication.getName();
-        System.out.println("hallo ich bin da");
-        List<GroupMember> members = groupService.getGroupMembers(groupId, username);
+        List<GroupMember> members = groupService.getGroupMembers(savingGoalId, username);
         return ResponseEntity.ok(members);
     }
 

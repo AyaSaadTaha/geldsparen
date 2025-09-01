@@ -115,7 +115,7 @@ public class GroupMemberService {
         List<GroupMember> emailInvitations = groupMemberRepository.findByEmailAndInvitationStatus(user.getEmail(), GroupMember.InvitationStatus.PENDING);
 
         // Combine both lists
-        List<GroupMember> allInvitations = new ArrayList<>();
+        Set<GroupMember> allInvitations = new HashSet<>();
         allInvitations.addAll(userInvitations);
         allInvitations.addAll(emailInvitations);
 
@@ -217,14 +217,16 @@ public class GroupMemberService {
         // Check if user can afford this
         Optional<SpendingPattern> spendingPattern = spendingPatternRepository.findByUser(user);
         Optional<CurrentAccount> currentAccount = currentAccountRepository.findByUser(user);
+        String warningMessage = null;
 
         if (spendingPattern.isPresent() && currentAccount.isPresent()) {
             BigDecimal availableSavings = spendingPattern.get().getSavings();
 
             if (availableSavings.compareTo(userMonthlyContribution) < 0) {
-                throw new RuntimeException("Your available savings (€" + availableSavings +
-                        ") are not enough for your monthly contribution of €" + userMonthlyContribution +
-                        ". You need to reduce your expenses or increase your income.");
+                warningMessage = "Ihre verfügbaren Ersparnisse (€" + availableSavings +
+                        ") reichen nicht für die monatliche Zahlung von €" + userMonthlyContribution +
+                        ". Sie müssen Ihre Ausgaben reduzieren oder Ihr Einkommen erhöhen.";
+                System.out.println(warningMessage);
             }
         }
     }

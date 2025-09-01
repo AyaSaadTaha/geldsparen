@@ -1,24 +1,23 @@
 package com.geldsparenbackend.service;
 
-import com.geldsparenbackend.model.Group;
-import com.geldsparenbackend.model.GroupMember;
-import com.geldsparenbackend.model.SavingGoal;
-import com.geldsparenbackend.model.User;
+import com.geldsparenbackend.model.*;
 import com.geldsparenbackend.model.GroupMember.InvitationStatus;
-import com.geldsparenbackend.repository.GroupRepository;
-import com.geldsparenbackend.repository.GroupMemberRepository;
-import com.geldsparenbackend.repository.SavingGoalRepository;
-import com.geldsparenbackend.repository.UserRepository;
+import com.geldsparenbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupService {
@@ -47,65 +46,124 @@ public class GroupService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private SpendingPatternRepository spendingPatternRepository;
+
+    @Autowired
+    private CurrentAccountRepository currentAccountRepository;
+
     @Transactional
     public Group createGroupSavingGoal(GroupSavingGoalRequest request, String username) {
-        // 1. Saving Goal erstellen
-        SavingGoal savingGoal = savingGoalService.createSavingGoal(request.getSavingGoal(), username);
-
-        // 2. Gruppe erstellen
+        // 1. First check if the creator can afford their share
         User createdBy = userService.getUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Group group = new Group();
-        group.setName(request.getGroupName());
-        group.setSavingGoal(savingGoal);
-        group.setCreatedBy(createdBy);
-        group.setMembers(new ArrayList<>());
+        SavingGoal savingGoal = request.getSavingGoal();
+        //savingGoal.calculateMonthlyAmount();
+        Group savedGroup;
+        String warningMessage = null;
 
-        Group savedGroup = groupRepository.save(group);
+        // Calculate months between including both start and end months
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = savingGoal.getDeadline();
 
-        // 3. Mitglieder hinzufügen und Einladungen senden
-        if (request.getMemberEmails() != null && !request.getMemberEmails().isEmpty()) {
-            for (String email : request.getMemberEmails()) {
-                if (email != null && !email.trim().isEmpty()) {
-                    try {
-                        // Benutzer per Email finden
-                        Optional<User> memberUser = userService.getUserByEmail(email);
+        // More accurate month calculation that includes both start and end months
+        long monthsBetween = calculateTotalMonths(startDate, endDate);
 
-                        GroupMember member = new GroupMember();
-                        member.setGroup(savedGroup);
-                        member.setEmail(email);
+        BigDecimal monthlyAmount = savingGoal.getTargetAmount()
+                .divide(BigDecimal.valueOf(monthsBetween), 2, RoundingMode.HALF_UP);
 
-                        if (memberUser.isPresent()) {
-                            member.setUser(memberUser.get());
-                        } else {
-                            // Wenn Benutzer nicht existiert, nur Email speichern
-                            member.setUser(null); // oder Sie können einen Platzhalter-Benutzer erstellen
-                        }
+        // For group goals, divide by number of members (including creator)
+        int memberCount = request.getMemberEmails().size() + 1; // +1 for creator
 
-                        member.setInvitationStatus(GroupMember.InvitationStatus.PENDING);
-                        groupMemberRepository.save(member);
+        BigDecimal creatorMonthlyContribution = monthlyAmount
+                .divide(BigDecimal.valueOf(memberCount), 2, RoundingMode.HALF_UP);
 
-                        // Einladungs-Email senden
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                emailService.sendGroupInvitation(email, savedGroup.getName(),
-                                        createdBy.getUsername(), savingGoal.getName());
-                                System.out.println("Invitation email sent to: {}"+ email);
-                            } catch (Exception e) {
-                                System.out.println("Failed to send email to: {}"+ email+ e);
-                            }
-                        });
 
-                    } catch (Exception e) {
-                        // Fehler protokollieren, aber fortfahren
-                        System.err.println("Failed to add member with email: " + email + ", error: " + e.getMessage());
-                    }
-                }
+        // Check if creator can afford their share
+        Optional<SpendingPattern> spendingPattern = spendingPatternRepository.findByUser(createdBy);
+        Optional<CurrentAccount> currentAccount = currentAccountRepository.findByUser(createdBy);
+
+        if (spendingPattern.isPresent() && currentAccount.isPresent()) {
+            BigDecimal availableSavings = spendingPattern.get().getSavings();
+
+            if (availableSavings.compareTo(creatorMonthlyContribution) < 0) {
+                warningMessage = "Ihre verfügbaren Ersparnisse (€" + availableSavings +
+                        ") reichen nicht für die monatliche Zahlung von €" + savingGoal.getMonthlyAmount() +
+                        ". Sie müssen Ihre Ausgaben reduzieren oder Ihr Einkommen erhöhen.";
+                System.out.println(warningMessage);
             }
         }
 
+            // 1. Saving Goal erstellen
+            savingGoal.setMonthlyAmount(creatorMonthlyContribution);
+
+        savingGoal.setTotal_monthly_amount(
+                creatorMonthlyContribution.multiply(BigDecimal.valueOf(monthsBetween))
+        );
+
+        savingGoal.setUser(createdBy);
+        savingGoalRepository.save(savingGoal);
+
+        Group group = new Group();
+            group.setName(request.getGroupName());
+            group.setSavingGoal(savingGoal);
+            group.setCreatedBy(createdBy);
+            group.setMembers(new ArrayList<>());
+
+             savedGroup = groupRepository.save(group);
+
+            // 3. Mitglieder hinzufügen und Einladungen senden
+            if (request.getMemberEmails() != null && !request.getMemberEmails().isEmpty()) {
+                for (String email : request.getMemberEmails()) {
+                    if (email != null && !email.trim().isEmpty()) {
+                        try {
+                            // Benutzer per Email finden
+                            Optional<User> memberUser = userService.getUserByEmail(email);
+
+                            GroupMember member = new GroupMember();
+                            member.setGroup(savedGroup);
+                            member.setEmail(email);
+
+                            if (memberUser.isPresent()) {
+                                member.setUser(memberUser.get());
+                            } else {
+                                // Wenn Benutzer nicht existiert, nur Email speichern
+                                member.setUser(null); // oder Sie können einen Platzhalter-Benutzer erstellen
+                            }
+
+                            member.setInvitationStatus(InvitationStatus.PENDING);
+                            groupMemberRepository.save(member);
+
+                            // Einladungs-Email senden
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    emailService.sendGroupInvitation(email, savedGroup.getName(),
+                                            createdBy.getUsername(), savingGoal.getName());
+                                } catch (Exception e) {
+                                }
+                            });
+
+                        } catch (Exception e) {
+                            // Fehler protokollieren, aber fortfahren
+                        }
+                    }
+                }
+            }
+
         return savedGroup;
+    }
+
+    // Helper method for accurate month calculation
+    private long calculateTotalMonths(LocalDate startDate, LocalDate endDate) {
+        // Calculate inclusive months (both start and end months count)
+        long months = ChronoUnit.MONTHS.between(
+                startDate.withDayOfMonth(1),
+                endDate.withDayOfMonth(1)
+        ) + 1; // Add 1 to include both months
+
+        // Ensure at least 1 month
+        return Math.max(1, months);
     }
 
     public Optional<Group> getGroupBySavingGoalId(Long savingGoalId, String username) {
@@ -180,7 +238,7 @@ public class GroupService {
     }
 
     @Transactional
-    public void respondToGroupInvitation(Long groupMemberId, GroupMember.InvitationStatus response, String username) {
+    public void respondToGroupInvitation(Long groupMemberId, InvitationStatus response, String username) {
         User user = userService.findByUsername(username);
         GroupMember groupMember = groupMemberRepository.findById(groupMemberId)
                 .orElseThrow(() -> new RuntimeException("Group invitation not found"));
@@ -198,20 +256,13 @@ public class GroupService {
     }
 
     public List<GroupMember> getGroupMembers(Long savingGoalId, String username) {
-        User user = userService.getUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
-        SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
-                .orElseThrow(() -> new RuntimeException("Saving goal not found"));
-
         List<GroupMember> memberList= new ArrayList<>();
-        if (savingGoal!= null) {
-            Group group = groupRepository.findBySavingGoalId(savingGoalId)
-                    .orElseThrow(() -> new RuntimeException("Group not found"));
+        Group group = groupRepository.findBySavingGoalId(savingGoalId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+        System.out.println("group: " + group);
 
-            if (group!=null) {
-               memberList= group.getMembers();
-            }
+        if (group!=null) {
+            memberList = group.getMembers();
         }
         return memberList;
     }

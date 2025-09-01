@@ -13,6 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
+    @Query("SELECT g FROM Group g WHERE g.savingGoal = :savingGoal")
+    Group findBySavingGoals(@Param("savingGoal") SavingGoal savingGoal);
+
     Optional<Group> findBySavingGoal(SavingGoal savingGoal);
 
     // الطريقة الصحيحة للبحث بـ savingGoalId

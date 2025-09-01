@@ -38,6 +38,7 @@ public class SavingGoal {
     private SavingGoalStatus status = SavingGoalStatus.ACTIVE;
 
     private BigDecimal monthlyAmount;
+    private BigDecimal total_monthly_amount;
 
     public enum SavingGoalType {
         TRIP, BIRTHDAY, WEDDING, OTHER
@@ -67,6 +68,14 @@ public class SavingGoal {
     public BigDecimal getMonthlyAmount() { return monthlyAmount; }
     public void setMonthlyAmount(BigDecimal monthlyAmount) { this.monthlyAmount = monthlyAmount; }
 
+    public BigDecimal getTotal_monthly_amount() {
+        return total_monthly_amount;
+    }
+
+    public void setTotal_monthly_amount(BigDecimal total_monthly_amount) {
+        this.total_monthly_amount = total_monthly_amount;
+    }
+/*
     public void calculateMonthlyAmount() {
         if (targetAmount != null && deadline != null) {
             long monthsBetween = ChronoUnit.MONTHS.between(LocalDate.now(), deadline);
@@ -77,6 +86,7 @@ public class SavingGoal {
             }
         }
     }
+*/
 
     public int getProgressPercentage() {
         if (targetAmount.compareTo(BigDecimal.ZERO) == 0) {

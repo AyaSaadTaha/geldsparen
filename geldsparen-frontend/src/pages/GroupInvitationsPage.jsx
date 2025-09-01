@@ -38,7 +38,12 @@ const GroupInvitationsPage = () => {
             await axios.patch(
                 `http://localhost:8080/api/group-members/${groupMemberId}/respond`,
                 { response },
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
 
             setMessage('Response submitted successfully');
@@ -64,7 +69,7 @@ const GroupInvitationsPage = () => {
     return (
         <Box sx={{ maxWidth: 800, margin: '0 auto', p: 3 }}>
             <Typography variant="h4" fontWeight={800} align="center" mb={2} color="primary">
-                Group Invitations
+                Gruppen Einladungen
             </Typography>
 
             {message && (
@@ -77,7 +82,7 @@ const GroupInvitationsPage = () => {
                 <Paper sx={{ p: 4, textAlign: 'center' }}>
                     <GroupIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
                     <Typography variant="h6" color="text.secondary">
-                        No pending invitations
+                        „Keine ausstehenden Einladungen“ ✅
                     </Typography>
                 </Paper>
             ) : (
@@ -86,50 +91,49 @@ const GroupInvitationsPage = () => {
                         {invitations.map((invitation, index) => (
                             <React.Fragment key={invitation.id}>
                                 <ListItem alignItems="flex-start">
-                                    <ListItemText
-                                        primary={
-                                            <Box display="flex" alignItems="center" mb={1}>
-                                                <Typography variant="h6" sx={{ mr: 1 }}>
-                                                    {invitation.groupName}
-                                                </Typography>
-                                                <Chip
-                                                    label={invitation.savingGoalName}
-                                                    size="small"
-                                                    color="primary"
-                                                    variant="outlined"
-                                                />
-                                            </Box>
-                                        }
-                                        secondary={
-                                            <>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Invited by: {invitation.invitedBy}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Your monthly contribution: €{invitation.monthlyContribution}
-                                                </Typography>
-                                                <Box mt={2}>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="success"
-                                                        startIcon={<CheckCircleIcon />}
-                                                        onClick={() => respondToInvitation(invitation.id, 'ACCEPTED')}
-                                                        sx={{ mr: 1 }}
-                                                    >
-                                                        Accept
-                                                    </Button>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="error"
-                                                        startIcon={<CancelIcon />}
-                                                        onClick={() => respondToInvitation(invitation.id, 'DECLINED')}
-                                                    >
-                                                        Decline
-                                                    </Button>
-                                                </Box>
-                                            </>
-                                        }
-                                    />
+                                    <Box sx={{ width: '100%' }}>
+                                        {/* Primary content */}
+                                        <Box display="flex" alignItems="center" mb={1}>
+                                            <Typography variant="h6" sx={{ mr: 1 }}>
+                                                {invitation.groupName}
+                                            </Typography>
+                                            <Chip
+                                                label={invitation.savingGoalName}
+                                                size="small"
+                                                color="primary"
+                                                variant="outlined"
+                                            />
+                                        </Box>
+
+                                        {/* Secondary content */}
+                                        <Typography variant="body2" color="text.secondary" paragraph>
+                                            „Eingeladen von:“ {invitation.invitedBy}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" paragraph>
+                                            „Ihr monatlicher Beitrag:“ €{invitation.monthlyContribution}
+                                        </Typography>
+
+                                        {/* Buttons */}
+                                        <Box mt={2}>
+                                            <Button
+                                                variant="contained"
+                                                color="success"
+                                                startIcon={<CheckCircleIcon />}
+                                                onClick={() => respondToInvitation(invitation.id, 'ACCEPTED')}
+                                                sx={{ mr: 1 }}
+                                            >
+                                                Annehmen
+                                            </Button>
+                                            <Button
+                                                variant="outlined"
+                                                color="error"
+                                                startIcon={<CancelIcon />}
+                                                onClick={() => respondToInvitation(invitation.id, 'DECLINED')}
+                                            >
+                                                Ablehnen
+                                            </Button>
+                                        </Box>
+                                    </Box>
                                 </ListItem>
                                 {index < invitations.length - 1 && <Divider />}
                             </React.Fragment>

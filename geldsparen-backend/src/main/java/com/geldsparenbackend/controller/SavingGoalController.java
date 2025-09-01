@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/saving-goals")
@@ -25,10 +26,9 @@ public class SavingGoalController {
 
 
     @GetMapping
-    public ResponseEntity<List<SavingGoal>> getUserSavingGoals(Authentication authentication) {
+    public ResponseEntity<List<Map<String, Object>>> getUserSavingGoals(Authentication authentication) {
         String username = authentication.getName();
-        System.out.println("hi: " +  username);
-        List<SavingGoal> goals = savingGoalService.getUserSavingGoals(username);
+        List<Map<String, Object>> goals = savingGoalService.getUserSavingGoals(username);
         return ResponseEntity.ok(goals);
     }
 

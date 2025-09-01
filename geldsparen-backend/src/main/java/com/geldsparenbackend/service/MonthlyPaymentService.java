@@ -1,14 +1,15 @@
 package com.geldsparenbackend.service;
 
-import com.geldsparenbackend.model.MonthlyPayment;
-import com.geldsparenbackend.model.SavingGoal;
-import com.geldsparenbackend.model.User;
+import com.geldsparenbackend.model.*;
+import com.geldsparenbackend.repository.CurrentAccountRepository;
 import com.geldsparenbackend.repository.MonthlyPaymentRepository;
 import com.geldsparenbackend.repository.SavingGoalRepository;
+import com.geldsparenbackend.repository.SpendingPatternRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,18 +25,14 @@ public class MonthlyPaymentService {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private SpendingPatternRepository spendingPatternRepository;
+
+    @Autowired
+    private CurrentAccountRepository currentAccountRepository;
 
     public List<MonthlyPayment> getMonthlyPaymentsBySavingGoalId(Long savingGoalId, String username) {
-        User user = userService.getUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
-        SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
-                .orElseThrow(() -> new RuntimeException("Saving goal not found"));
-
-        if (!savingGoal.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not authorized to access these payments");
-        }
-
+        System.out.println("Saving goal is: " + monthlyPaymentRepository.findBySavingGoalId(savingGoalId));
         return monthlyPaymentRepository.findBySavingGoalId(savingGoalId);
     }
 
@@ -44,9 +41,25 @@ public class MonthlyPaymentService {
         SavingGoal savingGoal = savingGoalRepository.findById(savingGoalId)
                 .orElseThrow(() -> new RuntimeException("Saving goal not found"));
 
-        // التحقق من أن هدف التوفير ينتمي للمستخدم المصادق
-        if (!savingGoal.getUser().getId().equals(user.getId())) {
+        // Check authorization
+        /*if (!savingGoal.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to add payments to this goal");
+        }*/
+
+       // Check if user can afford this payment but don't throw exception
+        Optional<SpendingPattern> spendingPattern = spendingPatternRepository.findByUser(user);
+        Optional<CurrentAccount> currentAccount = currentAccountRepository.findByUser(user);
+
+        String warningMessage = null;
+        if (spendingPattern.isPresent() && currentAccount.isPresent()) {
+            BigDecimal availableSavings = spendingPattern.get().getSavings();
+
+            if (availableSavings.compareTo(monthlyPayment.getAmount()) < 0) {
+                warningMessage = "Ihre verfügbaren Ersparnisse (€" + availableSavings +
+                        ") reichen nicht für die monatliche Zahlung von €" + savingGoal.getMonthlyAmount() +
+                        ". Sie müssen Ihre Ausgaben reduzieren oder Ihr Einkommen erhöhen.";
+                System.out.println(warningMessage);
+            }
         }
 
         monthlyPayment.setSavingGoal(savingGoal);
@@ -61,7 +74,6 @@ public class MonthlyPaymentService {
         MonthlyPayment monthlyPayment = monthlyPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Monthly payment not found"));
 
-        // التحقق من أن الدفعة الشهرية تنتمي للمستخدم المصادق
         if (!monthlyPayment.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to update this payment");
         }
@@ -85,7 +97,6 @@ public class MonthlyPaymentService {
         MonthlyPayment monthlyPayment = monthlyPaymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Monthly payment not found"));
 
-        // التحقق من أن الدفعة الشهرية تنتمي للمستخدم المصادق
         if (!monthlyPayment.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not authorized to delete this payment");
         }

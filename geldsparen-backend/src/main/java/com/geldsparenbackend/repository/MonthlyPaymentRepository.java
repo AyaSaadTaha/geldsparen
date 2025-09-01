@@ -15,9 +15,8 @@ import java.util.List;
 
 @Repository
 public interface MonthlyPaymentRepository extends JpaRepository<MonthlyPayment, Long> {
-    List<MonthlyPayment> findBySavingGoal(SavingGoal savingGoal);
+    //الطريقة الصحيحة للبحث بـ savingGoalId
 
-    // الطريقة الصحيحة للبحث بـ savingGoalId
     @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId")
     List<MonthlyPayment> findBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
 
@@ -37,7 +36,9 @@ public interface MonthlyPaymentRepository extends JpaRepository<MonthlyPayment, 
     @Query("SELECT COUNT(mp) FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId AND mp.status = :status")
     Long countBySavingGoalIdAndStatus(@Param("savingGoalId") Long savingGoalId, @Param("status") PaymentStatus status);
 
-    List<MonthlyPayment> findBySavingGoalIdAndStatus(Long savingGoalId, PaymentStatus status);
+    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId AND mp.status = :status")
+    List<MonthlyPayment> findBySavingGoalIdAndStatus(@Param("savingGoalId") Long savingGoalId, @Param("status") PaymentStatus status);
+
     List<MonthlyPayment> findByUserId(Long userId);
 
     // Neue Methode hinzufügen
