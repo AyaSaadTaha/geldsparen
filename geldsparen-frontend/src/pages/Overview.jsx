@@ -4,7 +4,7 @@ import AccountCard from "../components/AccountCard.jsx";
 import SavingsAccount from "../components/SavingsAccount.jsx";
 
 
-function Overview({ accounts, currentAccount, onDelete }){
+function Overview({ currentAccount, onDelete, savingGoals }){
     return (
         <div>
             {/* Girokonto */}
@@ -23,14 +23,14 @@ function Overview({ accounts, currentAccount, onDelete }){
             )}
 
             {/* Savings Accounts*/}
-            {accounts.length === 0 ? (
+            {savingGoals.length === 0 ? (
                 <Paper variant="outlined" sx={{ p: 3 }}>
                     <Typography color="text.secondary">
                         Noch keine Sparziele hinzugefügt.
                     </Typography>
                 </Paper>
             ) : (
-                <SavingsAccount accounts={accounts} onDelete={onDelete} />
+                <SavingsAccount savingGoals={savingGoals} onDelete={onDelete} />
             )}
         </div>
     );

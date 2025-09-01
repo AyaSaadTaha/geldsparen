@@ -3,7 +3,7 @@ import {Box, Paper, Grid, TextField, Typography, Button, Alert, Stack} from "@mu
 import { Card, CardContent } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-const CurrentAccountForm = ({ currentAccount }) => {
+const CurrentAccountForm = ({ hasCurrentAccount }) => {
     const [salary, setSalary] = useState('');
     const [payday, setPayday] = useState('');
     const [iban, setIban] = useState('');
@@ -41,7 +41,8 @@ const CurrentAccountForm = ({ currentAccount }) => {
         }
     };
 
-    if (currentAccount) {
+
+    if (hasCurrentAccount) {
         return (
             <Card
                 sx={{

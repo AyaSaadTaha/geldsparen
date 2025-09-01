@@ -224,7 +224,7 @@ const MonthlyPaymentsPage = () => {
     const progress = calculateProgress();
 
     return (
-        <Box sx={{ maxWidth: 1200, margin: '0 auto', p: 3 }}>
+        <Box sx={{ width: '100%', margin: '0 auto', p: 3 }}>
             {/* Header with progress */}
             <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 3, background: 'linear-gradient(45deg, #f5f5f5 30%, #e0e0e0 90%)' }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

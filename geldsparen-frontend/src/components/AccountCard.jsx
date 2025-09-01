@@ -7,7 +7,7 @@ const AccountCard = ({currentAccount}) => {
     console.log("AccountCard got currentAccount:", currentAccount);
 
     const salary = Number(currentAccount?.salary ?? 0);
-    const payday = currentAccount?.payday ?? "—";
+   /* const payday = currentAccount?.payday ?? "—";*/
     const iban = currentAccount?.iban ?? "";
     const maskedIban = iban ? "**** **** " + iban.slice(-4) : "—";
 
@@ -16,7 +16,7 @@ const AccountCard = ({currentAccount}) => {
         <div className="balance-card">
             <div className="currency-symbol">€</div>
 
-            <div className="balance-label">Current Balance</div>
+            <div className="balance-label">Aktueller Kontostand</div>
 
             <div className="balance-amount">{salary.toLocaleString("de-DE")} €</div>
 
@@ -25,7 +25,7 @@ const AccountCard = ({currentAccount}) => {
                 <div className="bank-details">
                     <span className="bank-name">Sparkasse Bank</span>
                     <span className="account-number">{maskedIban}</span>
-                    <span className="account-payday">Payday: {payday}</span>
+                    {/*<span className="account-payday">Payday: {payday}</span>*/}
                 </div>
             </div>
         </div>

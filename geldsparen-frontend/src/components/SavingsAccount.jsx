@@ -15,14 +15,23 @@ import {
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import "./savingsaccount.css"
 
-const SavingsAccount = ({accounts, onDelete}) => {
-    console.log("SavingsAccount ---- props", accounts);
-
+const SavingsAccount = ({onDelete, savingGoals}) => {
+    console.log("SavingsAccount ---- props", savingGoals);
 
     const fmtMoney = (n) =>
         typeof n === "number"
             ? n.toLocaleString("de-DE", { minimumFractionDigits: 0 })
             : "—";
+
+    const getTypeLabel = (type) => {
+        const types = {
+            'TRIP': 'Reise',
+            'BIRTHDAY': 'Geburtstag',
+            'WEDDING': 'Hochzeit',
+            'OTHER': 'Anderes'
+        };
+        return types[type] || type;
+    };
 
 
     return (
@@ -37,7 +46,7 @@ const SavingsAccount = ({accounts, onDelete}) => {
             </Stack>
 
             <Grid className="savings-container" container spacing={3}>
-                {accounts.map((acc) => {
+                {savingGoals.map((acc) => {
                     const remaining =
                         typeof acc.currentAmount === "number" && typeof acc.currentAmount === "number"
                             ? Math.max(0, acc.targetAmount - acc.currentAmount)
@@ -80,23 +89,23 @@ const SavingsAccount = ({accounts, onDelete}) => {
                                             variant="outlined"
                                             sx={{ fontWeight: 600 }}
                                         />
-                                        <Chip label={acc.type} variant="outlined" sx={{ fontWeight: 600 }} />
+                                        <Chip label={getTypeLabel(acc.type)} variant="outlined" sx={{ fontWeight: 600 }} />
                                     </Stack>
 
                                     {/* Details */}
                                     <Stack spacing={1.2} mb={1.5}>
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography color="text.secondary">Ziel</Typography>
-                                            <Typography fontWeight={600}>{fmtMoney(acc.targetAmount)}</Typography>
+                                            <Typography fontWeight={600}>€{fmtMoney(acc.targetAmount)}</Typography>
                                         </Stack>
 
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography color="text.secondary">Monatlich</Typography>
-                                            <Typography fontWeight={600}>{fmtMoney(acc.monthlyAmount)}</Typography>
+                                            <Typography fontWeight={600}>€{fmtMoney(acc.monthlyAmount)}</Typography>
                                         </Stack>
 
                                         <Stack direction="row" justifyContent="space-between">
-                                            <Typography color="text.secondary">Datum</Typography>
+                                            <Typography color="text.secondary">Zieldatum</Typography>
                                             <Typography fontWeight={600}>
                                                 {new Date(acc.deadline).toLocaleDateString("de-DE")}
                                             </Typography>
@@ -131,9 +140,9 @@ const SavingsAccount = ({accounts, onDelete}) => {
                                         />
 
                                         <Stack direction="row" justifyContent="space-between">
-                                            <Typography fontWeight={700}>{fmtMoney(acc.currentAmount)}</Typography>
+                                            <Typography fontWeight={700}>€{fmtMoney(acc.currentAmount)}</Typography>
                                             <Typography color="text.secondary">
-                                                Rest: {remaining !== null ? fmtMoney(remaining) : "—"}
+                                                Rest: €{remaining !== null ? fmtMoney(remaining) : "—"}
                                             </Typography>
                                         </Stack>
                                     </Stack>
@@ -143,7 +152,7 @@ const SavingsAccount = ({accounts, onDelete}) => {
                     );
                 })}
 
-                {accounts.length === 0 && (
+                {!savingGoals && (
                     <Grid item xs={12}>
                         <Box
                             sx={{
