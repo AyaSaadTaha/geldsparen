@@ -15,6 +15,15 @@ import java.util.Optional;
 
 @Repository
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
+    // NEW: Find by user and invitation status
+    List<GroupMember> findByUserAndInvitationStatus(User user, GroupMember.InvitationStatus invitationStatus);
+
+    // NEW: Find by email and invitation status (for users who haven't registered yet)
+    List<GroupMember> findByEmailAndInvitationStatus(String email, GroupMember.InvitationStatus invitationStatus);
+
+    // NEW: Count pending invitations for a user
+    Long countByUserAndInvitationStatus(User user, GroupMember.InvitationStatus invitationStatus);
+
 
     List<GroupMember> findByGroup(Group group);
     List<GroupMember> findByUser(User user);

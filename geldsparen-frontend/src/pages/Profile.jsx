@@ -13,6 +13,7 @@ import "../components/styles.css"
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
 import {useAuth} from "../context/AuthContext.jsx";
+import GroupInvitationsPage from "./GroupInvitationsPage.jsx";
 
 
 
@@ -166,7 +167,7 @@ function Profile() {
 
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
                             <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Spending Page</Button></NavLink>
-                            <NavLink to="monthly-payments/:goalId" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Monthly Payments</Button></NavLink>
+                            <NavLink to="GroupInvitations" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Group Invitations</Button></NavLink>
                         </Box>
                     </div>
                     {/* user e-mail */}
@@ -193,6 +194,7 @@ function Profile() {
                 <Route path="current-account" element={<CurrentAccountPage/>} />
                 <Route path="saving-goals" element={<SavingGoalPage/>} />
                 <Route path="spending-patterns" element={<SpendingPatternPage/>} />
+                <Route path="GroupInvitations" element={<GroupInvitationsPage/>} />
                 <Route path="monthly-payments/:goalId" element={<MonthlyPaymentsPage/>} />
             </Routes>
         </>
