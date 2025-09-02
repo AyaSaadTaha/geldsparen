@@ -159,7 +159,13 @@ function Profile() {
             <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
             <AppBar className="header-appbar" position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', display:'flex', }}>
                 <Toolbar className="header-toolbar">
-                    <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
+                    <Typography
+                        variant="h6"
+                        className="logo"
+                        sx={{ flexGrow: 1, cursor: "pointer" }}
+                        component={Link}
+                        to="/overview" // путь на homepage
+                    >
                     </Typography>
                     <div>
                         <Box className="profile-nav" sx={{

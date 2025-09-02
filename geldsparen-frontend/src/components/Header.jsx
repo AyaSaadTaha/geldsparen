@@ -6,7 +6,7 @@ import {useAuth} from "../context/AuthContext.jsx";
 import {AuthModal} from "./auth/AuthModal.jsx";
 
 
-function Header() {
+function Header({hideAbout}) {
     const { user, logout, loading } = useAuth();
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState("login");
@@ -56,10 +56,16 @@ function Header() {
                 }}
             >
                 <Toolbar className="header-toolbar">
-                    <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" className="logo" sx={{ flexGrow: 1, cursor: "pointer" }}
+                                component={Link}
+                                to="/" >
                     </Typography>
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, mr: 2 }} className="nav-right">
-                        <MLink component={Link} to="/about" underline="hover" color="inherit">Über uns</MLink>
+                        {!hideAbout && (
+                            <MLink component={Link} to="/about" underline="hover" color="inherit">
+                                Über uns
+                            </MLink>
+                        )}
                     </Box>
                     {/*<Button variant="outlined" component={Link} to="/login" className="login-btn">Log In</Button>*/}
                     {user ? (

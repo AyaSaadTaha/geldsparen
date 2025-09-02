@@ -2,6 +2,7 @@ import { Routes, Route ,Navigate} from "react-router-dom";
 import './App.css'
 import AboutPage from "./components/About.jsx";
 import Home from "./components/Home.jsx";
+import About from "./components/About.jsx";
 import Header from "./components/Header.jsx";
 import Profile from "./pages/Profile.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
@@ -40,7 +41,7 @@ function App() {
                   />
 
                   {/* About for the home navbar */}
-                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/about" element={<About />} />
                   {/* Profile with pages: overview, add accounts, actions, dashboards */}
                   <Route path="/*" element={<Profile />} />
 
