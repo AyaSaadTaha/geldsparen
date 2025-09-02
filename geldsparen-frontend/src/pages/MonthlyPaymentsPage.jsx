@@ -339,14 +339,8 @@ const MonthlyPaymentsPage = () => {
             <Paper sx={{ mb: 3 }}>
                 <Tabs value={activeTab} onChange={handleTabChange} centered>
                     <Tab icon={<PaidIcon />} label="Zahlungen" />
-
-                    {activeTab === 1 && groupMembers.length > 0 && (
-                        <Tab icon={<GroupIcon />} label="Mitglieder Akzeptiert" />
-                    )}
-                    {/* Group Members Ausstehend Tab */}
-                    {activeTab === 2 && groupMembersAusstehend.length > 0 && (
+                    <Tab icon={<GroupIcon />} label="Mitglieder Akzeptiert" />
                     <Tab icon={<GroupIcon />} label="Mitglieder Ausstehend" />
-                    )}
                 </Tabs>
             </Paper>
 
