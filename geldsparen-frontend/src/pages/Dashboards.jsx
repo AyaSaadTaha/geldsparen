@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ResponsiveContainer, PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, RadialBarChart, RadialBar } from 'recharts';
 import axios from 'axios';
 import SpendingsDiagram from "../components/SpendingsDiagram.jsx";
+import {Box, Paper, Stack, Typography} from "@mui/material";
 
 const COLORS = ['#8b5cf7', '#22c55e', '#f43f5e', '#3b82f6', '#f59e0b', '#10b981', '#ef4444'];
 
@@ -128,7 +129,7 @@ function Dashboards() {
 
                         {/* Fortschritt der Sparziele - Radial-Diagramm */}
                         {savingGoals.length > 0 && (
-                            <div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl">
+                            /*<div className="lg:col-span-1 bg-white rounded-3xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl">
                                 <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">Fortschritt der Sparziele</h2>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <RadialBarChart
@@ -150,13 +151,85 @@ function Dashboards() {
                                         <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" />
                                     </RadialBarChart>
                                 </ResponsiveContainer>
-                            </div>
+                            </div>*/
+                            <Paper
+                                elevation={6}
+                                sx={{
+                                    borderRadius: 4,
+                                    m: "0 120px",
+                                    p: 3,
+                                    transition: "all 0.3s",
+                                    "&:hover": { boxShadow: 12 },
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    fontWeight="bold"
+                                    mb={2}
+                                    color="text.primary"
+                                >
+                                    Fortschritt der Sparziele
+                                </Typography>
+
+                                <Box display="flex" flexDirection="column" alignItems="center">
+                                    {/* Diagram */}
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <RadialBarChart
+                                            innerRadius="10%"
+                                            outerRadius="100%"
+                                            data={progressData}
+                                            startAngle={90}
+                                            endAngle={-270}
+                                        >
+                                            <RadialBar
+                                                minAngle={15}
+                                                background
+                                                clockWise
+                                                dataKey="progress"
+                                                cornerRadius={10}
+                                                label={{
+                                                    position: "insideStart",
+                                                    fill: "#000",
+                                                    fontSize: 12,
+                                                    formatter: (value) => `${value}%`,
+                                                }}
+                                            />
+                                            <Tooltip />
+                                        </RadialBarChart>
+                                    </ResponsiveContainer>
+
+                                    {/* legend*/}
+                                    <Stack
+                                        direction="row"
+                                        spacing={3}
+                                        mt={3}
+                                        flexWrap="wrap"
+                                        justifyContent="center"
+                                    >
+                                        {progressData.map((item, i) => (
+                                            <Stack key={i} direction="row" spacing={1} alignItems="center">
+                                                <Box
+                                                    sx={{
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: "50%",
+                                                        bgcolor: item.fill,
+                                                    }}
+                                                />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {item.name}
+                                                </Typography>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Paper>
                         )}
 
                         {/* Ersparnisse vs. Ziel - Balkendiagramm */}
                         {savingGoals.length > 0 && (
-                            <div className="lg:col-span-3 bg-white rounded-3xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl">
-                                <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">Ersparnisse vs. Ziel</h2>
+                            <div style={{ margin: "0 80px 30px 50px" }} className="lg:col-span-3 bg-white rounded-3xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl mx-[120px]">
+                                <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 mx-[120px]">Ersparnisse vs. Ziel</h2>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={barData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                         <CartesianGrid strokeDasharray="3 3" />

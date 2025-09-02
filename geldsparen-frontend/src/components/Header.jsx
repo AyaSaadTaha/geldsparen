@@ -59,7 +59,7 @@ function Header() {
                     <Typography variant="h6" className="logo" sx={{ flexGrow: 1 }}>
                     </Typography>
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, mr: 2 }} className="nav-right">
-                        <MLink component={Link} to="/about" underline="hover" color="inherit">About</MLink>
+                        <MLink component={Link} to="/about" underline="hover" color="inherit">Über uns</MLink>
                     </Box>
                     {/*<Button variant="outlined" component={Link} to="/login" className="login-btn">Log In</Button>*/}
                     {user ? (
