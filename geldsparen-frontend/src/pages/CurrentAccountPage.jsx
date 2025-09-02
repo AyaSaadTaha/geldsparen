@@ -14,7 +14,6 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
         e.preventDefault();
         setMessage('Adding account...');
         const token =localStorage.getItem('token');
-        alert(token)
         try {
             const response = await fetch('http://localhost:8080/api/current-accounts', {
                 method: 'POST',

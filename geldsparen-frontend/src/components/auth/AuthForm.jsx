@@ -105,7 +105,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
             <div className="auth-container">
                 <div className="auth-card">
                     <div className="auth-header">
-                        <h2>{mode === "login" ? "Anmelden" : "Register"}</h2>
+                        <h2>{mode === "login" ? "Anmelden" : "Registrieren"}</h2>
                         <p>
                             {mode === "login"
                                 ? "Willkommen zurück! Bitte melden Sie sich bei Ihrem Konto an"
@@ -137,26 +137,26 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                         )}
 
                         <div className="form-group">
-                            <label>{mode === "login" ? "Username or Email" : "Username"} <span>*</span></label>
+                            <label>{mode === "login" ? "Benutzername or Email" : "Benutzername"} <span>*</span></label>
                             <input
                                 type="text"
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
-                                placeholder={mode === "login" ? "Enter your username or email" : "Enter your username"}
+                                placeholder={mode === "login" ? "Geben Sie Benutzernamen oder E-Mail-Adresse ein" : "Geben Sie Benutzernamen"}
                                 required
                             />
                             {errors.username && <span className="error-text">{errors.username}</span>}
                         </div>
 
                         <div className="form-group">
-                            <label>Password <span>*</span></label>
+                            <label>Passwort <span>*</span></label>
                             <input
                                 type="password"
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                placeholder="Enter your password"
+                                placeholder="Geben Sie Passwort"
                                 required
                             />
                             {errors.password && <span className="error-text">{errors.password}</span>}
@@ -164,13 +164,13 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
 
                         {mode === "register" && (
                             <div className="form-group">
-                                <label>Confirm Password <span>*</span></label>
+                                <label>Passwort Bestätigen <span>*</span></label>
                                 <input
                                     type="password"
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    placeholder="Confirm your password"
+                                    placeholder="Passwort Bestätigen"
                                     required
                                 />
                                 {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
@@ -178,7 +178,7 @@ export function AuthForm({ mode, onClose, onSwitchMode }) {
                         )}
 
                         <button type="submit" className="auth-submit" disabled={isLoading}>
-                            {isLoading ? 'Loading...' : (mode === "login" ? 'Anmelden' : 'Benutzerkonto erstellen')}
+                            {isLoading ? 'Laden...' : (mode === "login" ? 'Anmelden' : 'Benutzerkonto erstellen')}
                         </button>
 
                         <div className="auth-toggle">
