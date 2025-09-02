@@ -26,8 +26,7 @@ public class MonthlyPaymentController {
     }
 
     @PostMapping("/saving-goal/{savingGoalId}")
-    public ResponseEntity<MonthlyPayment> createMonthlyPayment(
-            @RequestBody MonthlyPayment monthlyPayment,
+    public ResponseEntity<MonthlyPayment> createMonthlyPayment(@RequestBody MonthlyPayment monthlyPayment,
             @PathVariable Long savingGoalId,
             Authentication authentication) {
         String username = authentication.getName();

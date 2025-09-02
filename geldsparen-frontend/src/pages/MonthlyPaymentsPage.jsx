@@ -100,6 +100,9 @@ const MonthlyPaymentsPage = () => {
             const members = data.filter(m => m.invitationStatus === "ACCEPTED");
             const membersAusstehend = data.filter(m => m.invitationStatus === "PENDING");
 
+            console.log("membersAusstehend", membersAusstehend)
+            console.log("members", members)
+
             setGroupMembers(members);
             setGroupMembersAusstehend(membersAusstehend);
 
@@ -138,7 +141,6 @@ const MonthlyPaymentsPage = () => {
             await axios.post(`http://localhost:8080/api/monthly-payments/saving-goal/${goalId}`, payment, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
             setPayment({ amount: '', dueDate: '' });
             setShowForm(false);
             await fetchMonthlyPayments();

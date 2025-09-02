@@ -21,7 +21,7 @@ public class MonthlyPayment {
 
     @ManyToOne
     @JoinColumn(name = "saving_goal_id", nullable = false)
-    @JsonBackReference
+
     private SavingGoal savingGoal;
 
     @ManyToOne

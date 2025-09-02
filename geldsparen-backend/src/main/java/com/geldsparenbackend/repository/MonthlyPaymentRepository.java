@@ -20,6 +20,9 @@ public interface MonthlyPaymentRepository extends JpaRepository<MonthlyPayment, 
     @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId")
     List<MonthlyPayment> findBySavingGoalId(@Param("savingGoalId") Long savingGoalId);
 
+    @Query("SELECT mp FROM MonthlyPayment mp WHERE mp.savingGoal.id = :savingGoalId AND mp.user = :user")
+    List<MonthlyPayment> findBySavingGoalIdAndUsers(@Param("savingGoalId") Long savingGoalId, @Param("user") User user);
+
     List<MonthlyPayment> findByUser(User user);
     List<MonthlyPayment> findByStatus(PaymentStatus status);
 
