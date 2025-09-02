@@ -34,6 +34,7 @@ const SavingsAccount = ({onDelete, savingGoals}) => {
     };
 
 
+
     return (
         <div>
             <Stack direction="row" justifyContent="center" alignItems="center" mb={3} marginTop={3}>
@@ -126,18 +127,8 @@ const SavingsAccount = ({onDelete, savingGoals}) => {
                                             <Typography variant="body2" color="text.secondary">
                                                 Gespart
                                             </Typography>
-                                            <Chip
-                                                size="small"
-                                                label={`${acc.progressPercentage ?? 0}%`}
-                                                variant="outlined"
-                                            />
                                         </Stack>
 
-                                        <LinearProgress
-                                            variant="determinate"
-                                            value={Math.min(100, Math.max(0, acc.progressPercentage || 0))}
-                                            sx={{ height: 10, borderRadius: 999 }}
-                                        />
 
                                         <Stack direction="row" justifyContent="space-between">
                                             <Typography fontWeight={700}>€{fmtMoney(acc.currentAmount)}</Typography>

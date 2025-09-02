@@ -61,10 +61,10 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
                 <WarningAmberIcon sx={{ fontSize: 40, color: "#ff9800", mr: 2 }} />
                 <CardContent sx={{ p: 0 }}>
                     <Typography variant="h6" color="text.primary" gutterBottom>
-                        Current Account Already Exists
+                        Girokonto bereits vorhanden
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        You cannot create another one.
+                        Sie können kein weiteres erstellen.
                     </Typography>
                 </CardContent>
             </Card>
