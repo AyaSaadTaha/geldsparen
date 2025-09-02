@@ -46,7 +46,7 @@ const GroupInvitationsPage = () => {
                 }
             );
 
-            setMessage('Response submitted successfully');
+            setMessage('Antwort wurde erfolgreich gesendet');
             fetchInvitations();
         } catch (error) {
             console.error('Error responding to invitation:', error);

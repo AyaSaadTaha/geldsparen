@@ -27,7 +27,7 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                setMessage('Account added successfully!');
+                setMessage('Konto erfolgreich hinzugefügt!');
                 console.log(data);
             } else if (response.status === 409) {
                 setMessage('Error: Account already exists for this user.');
@@ -79,7 +79,7 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
                 mb={5}
                 mt={5}
             >
-                Add Current Account
+                Girokonto hinzufügen
             </Typography>
 
             <Paper
@@ -92,7 +92,7 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
                             fullWidth
                             type="number"
                             inputProps={{ min: 0, step: 1 }}
-                            label="Salary (€)"
+                            label="Gehalt (€)"
                             value={salary}
                             onChange={(e) => setSalary(e.target.value)}
                             required
@@ -102,7 +102,7 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
                             fullWidth
                             type="number"
                             inputProps={{ min: 1, max: 31, step: 1 }}
-                            label="Payday (1–31)"
+                            label="Zahltag (1–31)"
                             value={payday}
                             onChange={(e) => setPayday(e.target.value)}
                             required
@@ -135,7 +135,7 @@ const CurrentAccountForm = ({ hasCurrentAccount }) => {
                                 },
                             }}
                         >
-                            Submit
+                            Hinzufügen
                         </Button>
 
                         {message && <Alert severity="info">{message}</Alert>}

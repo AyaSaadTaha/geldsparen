@@ -88,14 +88,14 @@ const SpendingPatternPage = () => {
             });
 
             setIsEditing(false);
-            setMessage('Ausgabemuster erfolgreich gespeichert!');
+            setMessage('Ausgaben erfolgreich gespeichert!');
 
             setTimeout(() => {
                 setMessage('');
             }, 3000);
         } catch (error) {
             console.error('Error details:', error.response?.data);
-            setError('Ausgabemuster konnte nicht gespeichert werden: ' + (error.response?.data?.message || error.message));
+            setError('Ausgaben konnte nicht gespeichert werden: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -135,7 +135,7 @@ const SpendingPatternPage = () => {
             <div className="spending-pattern-page">
                 <div className="loading">
                     <div className="spinner"></div>
-                    <p>Lade dein Ausgabemuster...</p>
+                    <p>Lade dein Ausgaben ...</p>
                 </div>
             </div>
         );
@@ -144,7 +144,7 @@ const SpendingPatternPage = () => {
     return (
         <div className="spending-pattern-page">
             <div className="header">
-                <h2>Ausgabemuster</h2>
+                <h2>Ausgaben</h2>
                 <p>Verwalte deine monatlichen Ausgabenkategorien</p>
             </div>
 
@@ -154,7 +154,7 @@ const SpendingPatternPage = () => {
             <div className="card">
                 <form onSubmit={handleSubmit} className="spending-pattern-form">
                     <div className="form-section">
-                        <h3>{spendingPattern.id ? 'Ausgabemuster bearbeiten' : 'Ausgabemuster erstellen'}</h3>
+                        <h3>{spendingPattern.id ? 'Ausgaben bearbeiten' : 'Ausgaben erstellen'}</h3>
 
                         <div className="input-grid">
                             <div className="form-group">
@@ -228,7 +228,7 @@ const SpendingPatternPage = () => {
                                 onClick={() => setIsEditing(true)}
                                 className="btn btn-primary"
                             >
-                                {spendingPattern.id ? 'Ausgabemuster bearbeiten' : 'Ausgabemuster erstellen'}
+                                {spendingPattern.id ? 'Ausgaben bearbeiten' : 'Ausgaben erstellen'}
                             </button>
                         )}
 

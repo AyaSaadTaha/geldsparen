@@ -200,7 +200,7 @@ function Profile() {
 
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
                             <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Ausgaben</Button></NavLink>
-                            <NavLink to="GroupInvitations" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Group Invitations</Button></NavLink>
+                            <NavLink to="GroupInvitations" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Group Einladungen</Button></NavLink>
                         </Box>
                     </div>
                     {/* user e-mail */}
