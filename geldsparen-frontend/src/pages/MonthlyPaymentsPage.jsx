@@ -27,9 +27,10 @@ const MonthlyPaymentsPage = () => {
     const [showForm, setShowForm] = useState(false);
     const [message, setMessage] = useState('');
     const [savingGoal, setSavingGoal] = useState(null);
-    const [groupMembers, setGroupMembers] = useState([]);
+    const [groupMembers, setGroupMembers] = useState(null);
     const [groupMembersAusstehend, setGroupMembersAusstehend] = useState([]);
     const [memberContributions, setMemberContributions] = useState({});
+    const [totalotalVerbleibendalleine, setTotalVerbleibendalleine] = useState({});
     const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -45,6 +46,7 @@ const MonthlyPaymentsPage = () => {
                 await Promise.all([
                     fetchSavingGoal(),
                     fetchMonthlyPayments(),
+                    fetchTotalVerbleibendalleine(),
                     fetchGroupMembers()
                 ]);
             } catch (error) {
@@ -63,6 +65,20 @@ const MonthlyPaymentsPage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSavingGoal(response.data);
+        } catch (error) {
+            const errorMessage = handleApiError(error, 'Failed to fetch saving goal');
+            setMessage(errorMessage);
+            console.error(error);
+        }
+    };
+
+    const fetchTotalVerbleibendalleine = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://localhost:8080/api/monthly-payments/totalVerbleibendalleine/${goalId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setTotalVerbleibendalleine(response.data);
         } catch (error) {
             const errorMessage = handleApiError(error, 'Failed to fetch saving goal');
             setMessage(errorMessage);
@@ -97,11 +113,10 @@ const MonthlyPaymentsPage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data;
+            console.log("data", data)
+
             const members = data.filter(m => m.invitationStatus === "ACCEPTED");
             const membersAusstehend = data.filter(m => m.invitationStatus === "PENDING");
-
-            console.log("membersAusstehend", membersAusstehend)
-            console.log("members", members)
 
             setGroupMembers(members);
             setGroupMembersAusstehend(membersAusstehend);
@@ -161,6 +176,7 @@ const MonthlyPaymentsPage = () => {
 
             await fetchMonthlyPayments();
             await fetchSavingGoal();
+            await fetchTotalVerbleibendalleine();
             setMessage('„Zahlungsstatus erfolgreich aktualisiert“ ✅');
         } catch (error) {
             console.error('„Fehler beim Aktualisieren des Zahlungsstatus“:');
@@ -170,8 +186,8 @@ const MonthlyPaymentsPage = () => {
 
     const calculateProgress = () => {
         if (!savingGoal || !savingGoal.targetAmount || savingGoal.targetAmount === 0) return 0;
-        const current = savingGoal.currentAmount || 0;
-        return Math.min(100, Math.round((current / savingGoal.targetAmount) * 100));
+        const current = totalotalVerbleibendalleine || 0;
+        return Math.min(100, Math.round((current / savingGoal.total_monthly_amount) * 100));
     };
 
     const getStatusIcon = (status) => {
@@ -216,6 +232,7 @@ const MonthlyPaymentsPage = () => {
             return error.message || defaultMessage;
         }
     };
+
 
     if (isLoading) {
         return (
@@ -268,7 +285,7 @@ const MonthlyPaymentsPage = () => {
                             Gespart:
                         </Typography>
                         <Typography variant="h5" fontWeight={600}>
-                            {formatCurrency(savingGoal.currentAmount)}
+                            {formatCurrency(totalotalVerbleibendalleine)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={4}>
@@ -281,10 +298,26 @@ const MonthlyPaymentsPage = () => {
                     </Grid>
                     <Grid item xs={12} sm={4}>
                         <Typography variant="body2" color="text.secondary">
-                            Verbleibend:
+                           Total Monat  :
                         </Typography>
                         <Typography variant="h5" fontWeight={600}>
-                            {formatCurrency((savingGoal.total_monthly_amount) - (savingGoal.currentAmount || 0))}
+                            {savingGoal.total_monthly_number}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Typography variant="body2" color="text.secondary">
+                            Total Verbleibend alleine :
+                        </Typography>
+                        <Typography variant="h5" fontWeight={600}>
+                            {formatCurrency(savingGoal.total_monthly_amount - totalotalVerbleibendalleine)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Typography variant="body2" color="text.secondary">
+                            Verbleibend für Gruppen:
+                        </Typography>
+                        <Typography variant="h5" fontWeight={600}>
+                            {formatCurrency((savingGoal.targetAmount) - (savingGoal.currentAmount || 0))}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -306,8 +339,14 @@ const MonthlyPaymentsPage = () => {
             <Paper sx={{ mb: 3 }}>
                 <Tabs value={activeTab} onChange={handleTabChange} centered>
                     <Tab icon={<PaidIcon />} label="Zahlungen" />
-                    <Tab icon={<GroupIcon />} label="Mitglieder Akzeptiert" />
+
+                    {activeTab === 1 && groupMembers.length > 0 && (
+                        <Tab icon={<GroupIcon />} label="Mitglieder Akzeptiert" />
+                    )}
+                    {/* Group Members Ausstehend Tab */}
+                    {activeTab === 2 && groupMembersAusstehend.length > 0 && (
                     <Tab icon={<GroupIcon />} label="Mitglieder Ausstehend" />
+                    )}
                 </Tabs>
             </Paper>
 
@@ -413,16 +452,16 @@ const MonthlyPaymentsPage = () => {
                                         <Box display="flex" alignItems="center" mb={1}>
                                             <PersonIcon color="primary" sx={{ mr: 1 }} />
                                             <Typography variant="subtitle1" fontWeight={600}>
-                                                {member.user?.username || member.email}
+                                                {member.username || member.email}
                                             </Typography>
                                         </Box>
                                         <Typography variant="body2" color="text.secondary">
-                                            Beitrag: {formatCurrency(memberContributions[member.user?.username] || 0)}
+                                            Beitrag: {formatCurrency(memberContributions[member.username] || 0)}
                                         </Typography>
                                         <LinearProgress
                                             variant="determinate"
                                             value={savingGoal.targetAmount > 0 ?
-                                                ((memberContributions[member.user?.username] || 0) / savingGoal.targetAmount) * 100 : 0}
+                                                ((memberContributions[member.username] || 0) / savingGoal.targetAmount) * 100 : 0}
                                             sx={{ mt: 1, height: 8, borderRadius: 4 }}
                                         />
                                     </CardContent>

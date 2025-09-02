@@ -66,6 +66,7 @@ public class SavingGoalService {
         savingGoal.setTotal_monthly_amount(
                 monthlyAmount.multiply(BigDecimal.valueOf(monthsBetween))
         );
+        savingGoal.setTotal_monthly_number(BigDecimal.valueOf(monthsBetween));
 
         // Check if user can afford this saving goal
         Optional<SpendingPattern> spendingPattern = spendingPatternRepository.findByUser(user);

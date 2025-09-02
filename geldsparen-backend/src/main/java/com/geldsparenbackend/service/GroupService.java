@@ -101,6 +101,7 @@ public class GroupService {
         savingGoal.setTotal_monthly_amount(
                 creatorMonthlyContribution.multiply(BigDecimal.valueOf(monthsBetween))
         );
+        savingGoal.setTotal_monthly_number(BigDecimal.valueOf(monthsBetween));
 
         savingGoal.setUser(createdBy);
         savingGoalRepository.save(savingGoal);
@@ -255,16 +256,14 @@ public class GroupService {
         notificationService.sendGroupInvitationResponse(groupMember, response);
     }
 
-    public List<GroupMember> getGroupMembers(Long savingGoalId, String username) {
-        List<GroupMember> memberList= new ArrayList<>();
+    public List<GroupMemberDTO> getGroupMembers(Long savingGoalId, String username) {
+
         Group group = groupRepository.findBySavingGoalId(savingGoalId)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
-        System.out.println("group: " + group);
 
-        if (group!=null) {
-            memberList = group.getMembers();
-        }
-        return memberList;
+        return group.getMembers().stream()
+                .map(GroupMemberDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional

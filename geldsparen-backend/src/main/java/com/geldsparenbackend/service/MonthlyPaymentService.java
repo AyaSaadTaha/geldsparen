@@ -35,8 +35,20 @@ public class MonthlyPaymentService {
         User user = userService.getUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-
         return monthlyPaymentRepository.findBySavingGoalIdAndUsers(savingGoalId,user);
+    }
+
+    public BigDecimal  getTotalVerbleibendalleine(Long savingGoalId, String username) {
+        List<MonthlyPayment> monthlyPayments = getMonthlyPaymentsBySavingGoalId(savingGoalId, username);
+        BigDecimal totalPaid = BigDecimal.ZERO;
+
+        if (monthlyPayments != null && !monthlyPayments.isEmpty()) {
+            totalPaid = monthlyPayments.stream()
+                    .filter(m -> m.getStatus().equals(MonthlyPayment.PaymentStatus.PAID))
+                    .map(MonthlyPayment::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return totalPaid;
     }
 
     public MonthlyPayment createMonthlyPayment(MonthlyPayment monthlyPayment, Long savingGoalId, String username) {

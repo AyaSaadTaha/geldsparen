@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -67,5 +68,12 @@ public class MonthlyPaymentController {
         String username = authentication.getName();
         Long pendingCount = monthlyPaymentService.countPendingPaymentsBySavingGoalId(savingGoalId, username);
         return ResponseEntity.ok(pendingCount);
+    }
+
+    @GetMapping("/totalVerbleibendalleine/{savingGoalId}")
+    public ResponseEntity<BigDecimal> getTotalVerbleibendalleine(@PathVariable Long savingGoalId, Authentication authentication) {
+        String username = authentication.getName();
+        BigDecimal total = monthlyPaymentService.getTotalVerbleibendalleine(savingGoalId, username);
+        return ResponseEntity.ok(total);
     }
 }

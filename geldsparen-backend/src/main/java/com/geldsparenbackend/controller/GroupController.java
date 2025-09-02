@@ -2,6 +2,7 @@ package com.geldsparenbackend.controller;
 
 import com.geldsparenbackend.model.Group;
 import com.geldsparenbackend.model.GroupMember;
+import com.geldsparenbackend.service.GroupMemberDTO;
 import com.geldsparenbackend.service.GroupSavingGoalRequest;
 import com.geldsparenbackend.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,9 +72,9 @@ public class GroupController {
     }
 
     @GetMapping("/{savingGoalId}/members")
-    public ResponseEntity<List<GroupMember>> getGroupMembers(@PathVariable Long savingGoalId, Authentication authentication) {
+    public ResponseEntity< List<GroupMemberDTO>> getGroupMembers(@PathVariable Long savingGoalId, Authentication authentication) {
         String username = authentication.getName();
-        List<GroupMember> members = groupService.getGroupMembers(savingGoalId, username);
+        List<GroupMemberDTO> members = groupService.getGroupMembers(savingGoalId, username);
         return ResponseEntity.ok(members);
     }
 

@@ -39,6 +39,7 @@ public class SavingGoal {
 
     private BigDecimal monthlyAmount;
     private BigDecimal total_monthly_amount;
+    private BigDecimal total_monthly_number;
 
     public enum SavingGoalType {
         TRIP, BIRTHDAY, WEDDING, OTHER
@@ -74,6 +75,14 @@ public class SavingGoal {
 
     public void setTotal_monthly_amount(BigDecimal total_monthly_amount) {
         this.total_monthly_amount = total_monthly_amount;
+    }
+
+    public BigDecimal getTotal_monthly_number() {
+        return total_monthly_number;
+    }
+
+    public void setTotal_monthly_number(BigDecimal total_monthly_number) {
+        this.total_monthly_number = total_monthly_number;
     }
 /*
     public void calculateMonthlyAmount() {
