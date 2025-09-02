@@ -224,7 +224,7 @@ function Profile() {
                     <AddAccounts onAdd={handleAdd}/>
                 } />
                 <Route path="actions" element={<Actions />} />
-                <Route path="dashboards" element={<Dashboards accounts={accounts}/>} />
+                <Route path="dashboards" element={<Dashboards/>} />
                 <Route path="current-account" element={<CurrentAccountPage hasCurrentAccount={hasCurrent}/>} />
                 <Route path="saving-goals" element={<SavingGoalPage/>} />
                 <Route path="spending-patterns" element={<SpendingPatternPage/>} />
