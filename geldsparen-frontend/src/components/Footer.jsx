@@ -7,7 +7,7 @@ const Footer = () => {
                 <div className="footer-content">
                     <div className="copyright-section">
                         <div className="copyright">
-                            © 2024 Spar Fuchs. Alle Rechte vorbehalten.
+                            © 2025 Spar Fuchs. Alle Rechte vorbehalten.
                         </div>
                         <div className="legal-links">
                             <a href="#">Datenschutz</a>

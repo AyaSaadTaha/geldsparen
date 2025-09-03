@@ -339,6 +339,12 @@ const SavingGoalPage = () => {
                                         </Typography>
                                     )}
 
+                                    {!goal.groupName && (
+                                        <Typography variant="body2" color="primary" gutterBottom>
+                                            Persönliche Ziel
+                                        </Typography>
+                                    )}
+
                                     {/* إضافة مؤشر إذا كان الهدف تمت دعوة المستخدم إليه */}
                                     {goal.isGroup && goal.isInvited && (
                                         <Chip

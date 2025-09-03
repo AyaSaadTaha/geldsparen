@@ -186,7 +186,7 @@ function Profile() {
                                 aria-haspopup="true"
                                 aria-expanded={open ? "true" : undefined}
                             >
-                                Konto hinzufügen
+                                Kontos
                             </Button>
                             <Menu
                                 id="add-account-menu"
@@ -206,12 +206,12 @@ function Profile() {
 
                             <NavLink to="dashboards" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Dashboards</Button></NavLink>
                             <NavLink to="spending-patterns" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Ausgaben</Button></NavLink>
-                            <NavLink to="GroupInvitations" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Group Einladungen</Button></NavLink>
+                            <NavLink to="GroupInvitations" className={({isActive})=> isActive? 'active':''}><Button className="profile-links" variant="text">Einladung</Button></NavLink>
                         </Box>
                     </div>
                     {/* user e-mail */}
-                    <Typography variant="body1">
-                        <strong><em>{user ? "Hallo " + user.email.split("@")[0] : ""}</em></strong>
+                    <Typography variant="body1" sx={{ color: "white" }}>
+                        <strong><em>{user ? "Hallo, " + user.email.split("@")[0] : ""}</em></strong>
                     </Typography>
                     <Typography variant="body1" marginLeft={2}>
                         <Button variant="outlined"  onClick={handleLogout} className="login-btn">Log Out</Button>
